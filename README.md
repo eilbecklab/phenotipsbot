@@ -12,8 +12,7 @@ PhenoTipsBot uses a combination of the
 [PhenoTips REST API](https://phenotips.org/DevGuide/RESTfulAPI) and the
 [XWiki REST API](http://platform.xwiki.org/xwiki/bin/view/Features/XWikiRESTfulAPI)
 because the PhenoTips REST API cannot manipulate studies or custom properties
-that have been added to the PatientClass. PhenoTips 1.3-milestone1 or later is
-required.
+that have been added to the PatientClass. PhenoTips 1.2.2 or later is required.
 
 PhenoTipsBot depends on the
 [Python requests library](http://docs.python-requests.org/en/latest/), but this
