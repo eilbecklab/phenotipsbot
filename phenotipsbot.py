@@ -18,6 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
 # USA
 
+import io
 import requests
 from xml.etree import ElementTree
 
@@ -58,7 +59,7 @@ class PhenoTipsBot:
             return None
         else:
             r.raise_for_status()
-            tree = ElementTree.parse(StringIO(r.text))
+            tree = ElementTree.parse(io.StringIO(r.text))
             el = tree.find('{http://www.xwiki.org}property[@name="studyReference"]/{http://www.xwiki.org}value')
             return el.text[len('xwiki:Studies.'):]
 
