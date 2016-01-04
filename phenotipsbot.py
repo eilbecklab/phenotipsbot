@@ -36,6 +36,10 @@ class PhenoTipsBot:
             self.set(patient_id, patient_obj)
         if study:
             self.set_study(patient_id, study)
+        #the mandatory PhenoTips.VCF object is not added until someone visits the edit page
+        url = self.base + '/bin/edit/data/' + patient_id
+        r = requests.get(url, auth=self.auth);
+        r.raise_for_status()
         return patient_id
 
     def delete(self, patient_id):
