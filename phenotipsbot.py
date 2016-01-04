@@ -34,7 +34,7 @@ class PhenoTipsBot:
         self.base = base_url
         self.auth = (username, password)
 
-    def create(self, patient_obj=None, study=None):
+    def create(self, patient_obj=None, study=None, pedigree=None):
         r = requests.post(self.base + '/rest/patients', auth=self.auth)
         r.raise_for_status()
         patient_id = r.headers['location']
@@ -43,6 +43,8 @@ class PhenoTipsBot:
             self.set(patient_id, patient_obj)
         if study:
             self.set_study(patient_id, study)
+        if pedigree:
+            self.set_pedigree(patient_id, pedigree)
         #the mandatory PhenoTips.VCF object is not added until someone visits the edit page
         url = self.base + '/bin/edit/data/' + patient_id
         r = requests.get(url, auth=self.auth);
