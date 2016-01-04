@@ -19,10 +19,17 @@
 # USA
 
 import io
+import json
 import requests
+from base64 import b64encode
+from selenium import webdriver
 from xml.etree import ElementTree
 
 class PhenoTipsBot:
+    TIMEOUT = 20 #seconds
+
+    driver = None
+
     def __init__(self, base_url, username, password):
         self.base = base_url
         self.auth = (username, password)
@@ -56,6 +63,14 @@ class PhenoTipsBot:
             ret[prop.attrib['name']] = prop.find('{http://www.xwiki.org}value').text
         return ret
 
+    def get_pedigree(self, patient_id):
+        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.PedigreeClass/0'
+        r = requests.get(url, auth=self.auth)
+        r.raise_for_status()
+        tree = ElementTree.parse(io.StringIO(r.text))
+        el = tree.find('{http://www.xwiki.org}property[@name="data"]/{http://www.xwiki.org}value')
+        return json.loads(el.text)
+
     def get_study(self, patient_id):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.StudyBindingClass/0'
         r = requests.get(url, auth=self.auth)
@@ -66,6 +81,14 @@ class PhenoTipsBot:
             tree = ElementTree.parse(io.StringIO(r.text))
             el = tree.find('{http://www.xwiki.org}property[@name="studyReference"]/{http://www.xwiki.org}value')
             return el.text[len('xwiki:Studies.'):]
+
+    def init_phantom(self):
+        if not self.driver:
+            authorization = 'Basic ' + b64encode((self.auth[0] + ':' + self.auth[1]).encode('utf-8')).decode('utf-8')
+            webdriver.DesiredCapabilities.PHANTOMJS['phantomjs.page.customHeaders.authorization'] = authorization
+            self.driver = webdriver.PhantomJS()
+            self.driver.set_window_size(1920, 1080) #big enough to not cut off any elements
+            self.driver.implicitly_wait(PhenoTipsBot.TIMEOUT)
 
     def list(self):
         url = self.base + '/rest/patients?number=10000000'
@@ -82,6 +105,17 @@ class PhenoTipsBot:
             data['property#' + key] = patient_obj[key]
         r = requests.put(url, auth=self.auth, data=data)
         r.raise_for_status()
+
+    def set_pedigree(self, patient_id, pedigree_obj):
+        #the SVG is not automatically updated if the JSON is changed via the REST API
+        self.init_phantom()
+        url = self.base + '/bin/' + patient_id + '?sheet=PhenoTips.PedigreeEditor'
+        data = json.dumps(pedigree_obj, sort_keys=True).replace('"', '\\"')
+        self.driver.get(url)
+        self.driver.find_element_by_css_selector('#canvas svg') #wait for the page to load
+        self.driver.execute_script('window.editor.getSaveLoadEngine().createGraphFromSerializedData("' + data + '");')
+        self.driver.execute_script('window.editor.getSaveLoadEngine().save();')
+        self.driver.find_element_by_css_selector('#action-save.menu-item') #wait for the image to be saved
 
     def set_study(self, patient_id, study):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.StudyBindingClass/0'
