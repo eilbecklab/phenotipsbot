@@ -112,10 +112,10 @@ class PhenoTipsBot:
         #the SVG is not automatically updated if the JSON is changed via the REST API
         self.init_phantom()
         url = self.base + '/bin/' + patient_id + '?sheet=PhenoTips.PedigreeEditor'
-        data = json.dumps(pedigree_obj, sort_keys=True).replace('"', '\\"')
+        data = json.dumps(json.dumps(pedigree_obj, sort_keys=True))
         self.driver.get(url)
         self.driver.find_element_by_css_selector('#canvas svg') #wait for the page to load
-        self.driver.execute_script('window.editor.getSaveLoadEngine().createGraphFromSerializedData("' + data + '");')
+        self.driver.execute_script('window.editor.getSaveLoadEngine().createGraphFromSerializedData(' + data + ');')
         self.driver.execute_script('window.editor.getSaveLoadEngine().save();')
         self.driver.find_element_by_css_selector('#action-save.menu-item') #wait for the image to be saved
 
