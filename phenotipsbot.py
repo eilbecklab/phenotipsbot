@@ -55,6 +55,13 @@ class PhenoTipsBot:
         r = requests.delete(self.base + '/rest/patients/' + patient_id, auth=self.auth)
         r.raise_for_status()
 
+    def export_pedigree_ped(self, patient_id, id_generation='external'):
+        self.init_phantom()
+        url = self.base + '/bin/' + patient_id + '?sheet=PhenoTips.PedigreeEditor'
+        self.driver.get(url)
+        self.driver.find_element_by_css_selector('#canvas svg') #wait for the page to load
+        return self.driver.execute_script('return window.PedigreeExport.exportAsPED(window.editor.getGraph().DG, ' + json.dumps(id_generation) + ');')
+
     def get(self, patient_obj):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.PatientClass/0/properties'
         r = requests.get(url, auth=self.auth)
@@ -83,6 +90,21 @@ class PhenoTipsBot:
             tree = ElementTree.parse(io.StringIO(r.text))
             el = tree.find('{http://www.xwiki.org}property[@name="studyReference"]/{http://www.xwiki.org}value')
             return el.text[len('xwiki:Studies.'):]
+
+    def import_pedigree_ped(self, patient_id, pedigree_str, mark_evaluated=False, external_id_mark=True, accept_unknown_phenotypes=True):
+        self.init_phantom()
+        url = self.base + '/bin/' + patient_id + '?sheet=PhenoTips.PedigreeEditor'
+        data = json.dumps(pedigree_str)
+        import_options = json.dumps({
+            'markEvaluated': mark_evaluated,
+            'externalIdMark': external_id_mark,
+            'acceptUnknownPhenotypes': accept_unknown_phenotypes
+        })
+        self.driver.get(url)
+        self.driver.find_element_by_css_selector('#canvas svg') #wait for the page to load
+        self.driver.execute_script('window.editor.getSaveLoadEngine().createGraphFromImportData(' + data + ', "ped", ' + import_options + ');')
+        self.driver.execute_script('window.editor.getSaveLoadEngine().save();')
+        self.driver.find_element_by_css_selector('#action-save.menu-item') #wait for the image to be saved
 
     def init_phantom(self):
         if not self.driver:
