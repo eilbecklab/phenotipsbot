@@ -91,6 +91,9 @@ KNOWN_FIELDS = {
     'subject_data_relationship'            : 'String',
     'investigator'                         : 'String',
     'home_zip_code'                        : 'Integer',
+    #IBD
+    'age_at_diagnosis'                     : 'Float',
+    'age_at_enrollment'                    : 'Float',
 }
 
 def normalize(field_name, value):
@@ -118,6 +121,8 @@ def normalize(field_name, value):
                 return None
         elif field_type == 'Integer':
             return int(value)
+        elif field_type == 'Float':
+            return float(value)
         else:
             return value
     except ValueError:
