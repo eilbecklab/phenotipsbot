@@ -30,12 +30,13 @@ class PhenoTipsBot:
 
     driver = None
 
-    def __init__(self, base_url, username, password):
+    def __init__(self, base_url, username, password, ssl_verify=False):
         self.base = base_url
         self.auth = (username, password)
+        self.ssl_verify = ssl_verify
 
     def create(self, patient_obj=None, study=None, pedigree=None):
-        r = requests.post(self.base + '/rest/patients', auth=self.auth)
+        r = requests.post(self.base + '/rest/patients', auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
         patient_id = r.headers['location']
         patient_id = patient_id[patient_id.rfind('/')+1:]
@@ -47,12 +48,12 @@ class PhenoTipsBot:
             self.set_pedigree(patient_id, pedigree)
         #the mandatory PhenoTips.VCF object is not added until someone visits the edit page
         url = self.base + '/bin/edit/data/' + patient_id
-        r = requests.get(url, auth=self.auth);
+        r = requests.get(url, auth=self.auth, verify=self.ssl_verify);
         r.raise_for_status()
         return patient_id
 
     def delete(self, patient_id):
-        r = requests.delete(self.base + '/rest/patients/' + patient_id, auth=self.auth)
+        r = requests.delete(self.base + '/rest/patients/' + patient_id, auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
 
     def export_pedigree_ped(self, patient_id, id_generation='external'):
@@ -64,7 +65,7 @@ class PhenoTipsBot:
 
     def get(self, patient_id):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.PatientClass/0/properties'
-        r = requests.get(url, auth=self.auth)
+        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
         root = ElementTree.fromstring(r.text)
         ret = {}
@@ -74,7 +75,7 @@ class PhenoTipsBot:
 
     def get_pedigree(self, patient_id):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.PedigreeClass/0'
-        r = requests.get(url, auth=self.auth)
+        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
         tree = ElementTree.parse(io.StringIO(r.text))
         el = tree.find('{http://www.xwiki.org}property[@name="data"]/{http://www.xwiki.org}value')
@@ -82,7 +83,7 @@ class PhenoTipsBot:
 
     def get_study(self, patient_id):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.StudyBindingClass/0'
-        r = requests.get(url, auth=self.auth)
+        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
         if r.status_code == 404:
             return None
         else:
@@ -116,7 +117,7 @@ class PhenoTipsBot:
 
     def list(self):
         url = self.base + '/rest/patients?number=10000000'
-        r = requests.get(url, auth=self.auth, headers={'Content-Type': 'application/xml'})
+        r = requests.get(url, auth=self.auth, headers={'Content-Type': 'application/xml'}, verify=self.ssl_verify)
         r.raise_for_status()
         root = ElementTree.fromstring(r.text)
         id_elements = root.findall('./{https://phenotips.org/}patientSummary/{https://phenotips.org/}id')
@@ -127,7 +128,7 @@ class PhenoTipsBot:
         data = {}
         for key in patient_obj:
             data['property#' + key] = patient_obj[key]
-        r = requests.put(url, auth=self.auth, data=data)
+        r = requests.put(url, auth=self.auth, data=data, verify=self.ssl_verify)
         r.raise_for_status()
 
     def set_pedigree(self, patient_id, pedigree_obj):
@@ -143,7 +144,7 @@ class PhenoTipsBot:
 
     def set_study(self, patient_id, study):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.StudyBindingClass/0'
-        r = requests.get(url, auth=self.auth)
+        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
         if r.status_code == 404:
             if study == None:
                 return
@@ -153,14 +154,14 @@ class PhenoTipsBot:
                     'className': 'PhenoTips.StudyBindingClass',
                     'property#studyReference': 'xwiki:Studies.' + study,
                 }
-                r = requests.post(url, auth=self.auth, data=data)
+                r = requests.post(url, auth=self.auth, data=data, verify=self.ssl_verify)
                 r.raise_for_status()
         else:
             r.raise_for_status()
             if study == None:
-                requests.delete(url, auth=self.auth)
+                requests.delete(url, auth=self.auth, verify=self.ssl_verify)
                 r.raise_for_status()
             else:
-                r = requests.put(url, auth=self.auth, data={studyReference: 'xwiki:Studies.' + study})
+                r = requests.put(url, auth=self.auth, data={studyReference: 'xwiki:Studies.' + study}, verify=self.ssl_verify)
                 r.raise_for_status()
 
