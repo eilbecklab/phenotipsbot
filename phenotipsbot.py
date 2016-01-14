@@ -62,7 +62,7 @@ class PhenoTipsBot:
         self.driver.find_element_by_css_selector('#canvas svg') #wait for the page to load
         return self.driver.execute_script('return window.PedigreeExport.exportAsPED(window.editor.getGraph().DG, ' + json.dumps(id_generation) + ');')
 
-    def get(self, patient_obj):
+    def get(self, patient_id):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.PatientClass/0/properties'
         r = requests.get(url, auth=self.auth)
         r.raise_for_status()
