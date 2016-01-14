@@ -193,7 +193,7 @@ if not base_url:
 if not base_url:
     base_url = 'http://localhost:8080'
 if not base_url.startswith('http://') and not base_url.startswith('https://'):
-    base_url = 'http://' + self.base
+    base_url = 'http://' + base_url
 base_url = base_url.rstrip('/')
 
 if not username:
