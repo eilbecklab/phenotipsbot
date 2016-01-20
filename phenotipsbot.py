@@ -18,7 +18,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-import io
 import json
 import requests
 from base64 import b64encode
@@ -77,8 +76,8 @@ class PhenoTipsBot:
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.PedigreeClass/0'
         r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
-        tree = ElementTree.parse(io.StringIO(r.text))
-        el = tree.find('{http://www.xwiki.org}property[@name="data"]/{http://www.xwiki.org}value')
+        root = ElementTree.fromstring(r.text)
+        el = root.find('{http://www.xwiki.org}property[@name="data"]/{http://www.xwiki.org}value')
         return json.loads(el.text)
 
     def get_study(self, patient_id):
@@ -88,8 +87,8 @@ class PhenoTipsBot:
             return None
         else:
             r.raise_for_status()
-            tree = ElementTree.parse(io.StringIO(r.text))
-            el = tree.find('{http://www.xwiki.org}property[@name="studyReference"]/{http://www.xwiki.org}value')
+            root = ElementTree.fromstring(r.text)
+            el = root.find('{http://www.xwiki.org}property[@name="studyReference"]/{http://www.xwiki.org}value')
             return el.text[len('xwiki:Studies.'):]
 
     def import_pedigree_ped(self, patient_id, pedigree_str, mark_evaluated=False, external_id_mark=True, accept_unknown_phenotypes=True):
