@@ -161,6 +161,7 @@ class PhenoTipsBot:
                 requests.delete(url, auth=self.auth, verify=self.ssl_verify)
                 r.raise_for_status()
             else:
-                r = requests.put(url, auth=self.auth, data={studyReference: 'xwiki:Studies.' + study}, verify=self.ssl_verify)
+                data = {'property#studyReference': 'xwiki:Studies.' + study}
+                r = requests.put(url, auth=self.auth, data=data, verify=self.ssl_verify)
                 r.raise_for_status()
 
