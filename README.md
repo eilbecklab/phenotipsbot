@@ -16,8 +16,10 @@ manipulate studies, pedigrees, or custom properties that have been added to the
 PatientClass. PhenoTips 1.2.2 or later is required.
 
 PhenoTipsBot depends on the
-[Python requests library](http://docs.python-requests.org/en/latest/), but this
-can be easily installed with `sudo pip install requests`.
+[Python Selenium bindings](https://selenium-python.readthedocs.org/) and the
+[Python requests library](http://docs.python-requests.org/en/latest/), but these
+can be easily installed with `sudo apt-get install python-selenium` and
+`sudo pip install requests`.
 
 ## Reference
 ### PhenoTipsBot(base_url, username, password)
