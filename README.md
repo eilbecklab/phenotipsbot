@@ -22,65 +22,85 @@ can be easily installed with `sudo apt-get install python-selenium` and
 `sudo pip install requests`.
 
 ## Reference
-### PhenoTipsBot(base_url, username, password)
+### PhenoTipsBot
+#### PhenoTipsBot(base_url, username, password)
 Constructs a PhenoTipsBot instance with the specified parameters. The base URL
 should include the protocol but no trailing slash. Any changes made to the
 server will be logged under the provided username.
 
-### create(patient_obj, study, pedigree)
+#### create(patient_obj, study, pedigree)
 Creates a new patient page and returns the patient ID (e.g. 'P000123'). If
 patient_obj, study, or pedigree is given, set, set_study, or set_pedigree is
 also called.
 
-### create_relative(patient_id, relative_obj)
+#### create_relative(patient_id, relative_obj)
 Creates a new relative relationship and returns the relative number.
 
-### export_pedigree_ped(patient_id, id_generation='external')
+#### export_pedigree_ped(patient_id, id_generation='external')
 Returns a string in
 [PED](http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#ped) format that
 represents the pedigree data. id_generation can be 'external', 'newid', or
 'name'.
 
-### get(patient_id)
+#### get(patient_id)
 Returns a patient object corresponding to the patient with the specified ID.
 
-### get_pedigree(patient_id)
+#### get_pedigree(patient_id)
 Returns the patient's pedigree, which is displayed to the user as an SVG image,
 as an object deserialized from the internal JSON representation.
 
-### get_relative(patient_id, relative_num)
+#### get_relative(patient_id, relative_num)
 Returns the patient's relative with the specified number.
 
-### get_study(patient_id)
+#### get_study(patient_id)
 Returns the name of the patient's study form. 'xwiki:Studies.' is automatically
 removed from the study name.
 
-### import_pedigree_ped(patient_id, pedigree_str, mark_evaluated=False, external_id_mark=True, accept_unknown_phenotypes=True)
+#### import_pedigree_ped(patient_id, pedigree_str, mark_evaluated=False, external_id_mark=True, accept_unknown_phenotypes=True)
 Replaces the pedigree with one created from the specified
 [PED](http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#ped) string.
 
-### list()
+#### list()
 Returns a list of patient IDs on the server.
 
-### list_relatives(patient_id)
+#### list_relatives(patient_id)
 Returns a list of the relative numbers attached to the patient.
 
-### set(patient_id, patient_obj)
+#### set(patient_id, patient_obj)
 Updates the properties of the patient from the values in the patient object.
 Only properties that exist in both the patient object and on the server are
 updated.
 
-### set_pedigree(patient_id, pedigree_obj)
+#### set_pedigree(patient_id, pedigree_obj)
 Sets the patient's pedigree data and updates the SVG image that is shown to the
 user.
 
-### set_relative(patient_id, relative_num, relative_obj)
+#### set_relative(patient_id, relative_num, relative_obj)
 Sets the relative's name and relationship. The relative must already exist.
 
-### set_study(patient_id, study)
+#### set_study(patient_id, study)
 Sets the patient's study form. Pass `study=''` for the default study form, or
 `study=None` for the default study form and no study link. 'xwiki:Studies.' is
 automatically prepended to the study name.
+
+### ApgarType
+* ApgarType.unknown
+
+### RelativeType
+* RelativeType.aunt_uncle
+* RelativeType.child
+* RelativeType.cousin
+* RelativeType.grandchild
+* RelativeType.grandparent
+* RelativeType.niece_nephew
+* RelativeType.parent
+* RelativeType.sibling
+* RelativeType.twin
+
+### SexType
+* Sex.male
+* Sex.female
+* Sex.other
 
 ## License
 Copyright 2015 University of Utah

@@ -207,3 +207,21 @@ class PhenoTipsBot:
                 r = requests.put(url, auth=self.auth, data=data, verify=self.ssl_verify)
                 r.raise_for_status()
 
+class ApgarType:
+    unknown = 'unknown'
+
+class RelativeType:
+    aunt_uncle = 'aunt_uncle'
+    child = 'child'
+    cousin = 'cousin'
+    grandchild = 'grandchild'
+    grandparent = 'grandparent'
+    niece_nephew = 'niece_nephew'
+    parent = 'parent'
+    sibling = 'sibling'
+    twin = 'twin'
+
+class SexType:
+    male = 'M'
+    female = 'F'
+    other = 'O'
