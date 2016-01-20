@@ -32,6 +32,9 @@ Creates a new patient page and returns the patient ID (e.g. 'P000123'). If
 patient_obj, study, or pedigree is given, set, set_study, or set_pedigree is
 also called.
 
+### create_relative(patient_id, relative_obj)
+Creates a new relative relationship and returns the relative number.
+
 ### export_pedigree_ped(patient_id, id_generation='external')
 Returns a string in
 [PED](http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#ped) format that
@@ -45,6 +48,9 @@ Returns a patient object corresponding to the patient with the specified ID.
 Returns the patient's pedigree, which is displayed to the user as an SVG image,
 as an object deserialized from the internal JSON representation.
 
+### get_relative(patient_id, relative_num)
+Returns the patient's relative with the specified number.
+
 ### get_study(patient_id)
 Returns the name of the patient's study form. 'xwiki:Studies.' is automatically
 removed from the study name.
@@ -56,6 +62,9 @@ Replaces the pedigree with one created from the specified
 ### list()
 Returns a list of patient IDs on the server.
 
+### list_relatives(patient_id)
+Returns a list of the relative numbers attached to the patient.
+
 ### set(patient_id, patient_obj)
 Updates the properties of the patient from the values in the patient object.
 Only properties that exist in both the patient object and on the server are
@@ -64,6 +73,9 @@ updated.
 ### set_pedigree(patient_id, pedigree_obj)
 Sets the patient's pedigree data and updates the SVG image that is shown to the
 user.
+
+### set_relative(patient_id, relative_num, relative_obj)
+Sets the relative's name and relationship. The relative must already exist.
 
 ### set_study(patient_id, study)
 Sets the patient's study form. Pass `study=''` for the default study form, or

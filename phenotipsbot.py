@@ -51,6 +51,19 @@ class PhenoTipsBot:
         r.raise_for_status()
         return patient_id
 
+    def create_relative(self, patient_id, relative_obj):
+        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects'
+        data = {
+            'className': 'PhenoTips.RelativeClass',
+            'property#relative_of': relative_obj['relative_of'],
+            'property#relative_type': relative_obj['relative_type'],
+        }
+        r = requests.post(url, auth=self.auth, data=data, verify=self.ssl_verify)
+        r.raise_for_status()
+        relative_number = r.headers['location']
+        relative_number = relative_number[relative_number.rfind('/')+1:]
+        return relative_number
+
     def delete(self, patient_id):
         r = requests.delete(self.base + '/rest/patients/' + patient_id, auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
@@ -79,6 +92,16 @@ class PhenoTipsBot:
         root = ElementTree.fromstring(r.text)
         el = root.find('{http://www.xwiki.org}property[@name="data"]/{http://www.xwiki.org}value')
         return json.loads(el.text)
+
+    def get_relative(self, patient_id, relative_num):
+        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.RelativeClass/' + relative_num
+        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
+        r.raise_for_status()
+        root = ElementTree.fromstring(r.text)
+        ret = {}
+        ret['relative_of'] = root.find('./{http://www.xwiki.org}property[@name="relative_of"]/{http://www.xwiki.org}value').text
+        ret['relative_type'] = root.find('./{http://www.xwiki.org}property[@name="relative_type"]/{http://www.xwiki.org}value').text
+        return ret
 
     def get_study(self, patient_id):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.StudyBindingClass/0'
@@ -122,6 +145,16 @@ class PhenoTipsBot:
         id_elements = root.findall('./{https://phenotips.org/}patientSummary/{https://phenotips.org/}id')
         return list(map(lambda el: el.text, id_elements))
 
+    def list_relatives(self, patient_id):
+        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.RelativeClass'
+        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
+        r.raise_for_status()
+        root = ElementTree.fromstring(r.text)
+        number_elements = root.findall('./{http://www.xwiki.org}objectSummary/{http://www.xwiki.org}number')
+        print(url)
+        print(number_elements)
+        return list(map(lambda el: el.text, number_elements))
+
     def set(self, patient_id, patient_obj):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.PatientClass/0'
         data = {}
@@ -140,6 +173,15 @@ class PhenoTipsBot:
         self.driver.execute_script('window.editor.getSaveLoadEngine().createGraphFromSerializedData(' + data + ');')
         self.driver.execute_script('window.editor.getSaveLoadEngine().save();')
         self.driver.find_element_by_css_selector('#action-save.menu-item') #wait for the image to be saved
+
+    def set_relative(self, patient_id, relative_num, relative_obj):
+        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.RelativeClass/' + relative_num
+        data = {
+            'property#relative_of': relative_obj['relative_of'],
+            'property#relative_type': relative_obj['relative_type'],
+        }
+        r = requests.put(url, auth=self.auth, data=data, verify=self.ssl_verify)
+        r.raise_for_status()
 
     def set_study(self, patient_id, study):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.StudyBindingClass/0'
