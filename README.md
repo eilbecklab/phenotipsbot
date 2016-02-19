@@ -45,6 +45,9 @@ represents the pedigree data. id_generation can be 'external', 'newid', or
 #### get(patient_id)
 Returns a patient object corresponding to the patient with the specified ID.
 
+#### get_id(self, external_id):
+Translates an external ID to a patient ID.
+
 #### get_pedigree(patient_id)
 Returns the patient's pedigree, which is displayed to the user as an SVG image,
 as an object deserialized from the internal JSON representation.

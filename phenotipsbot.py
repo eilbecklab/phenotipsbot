@@ -85,6 +85,12 @@ class PhenoTipsBot:
             ret[prop.attrib['name']] = prop.find('{http://www.xwiki.org}value').text
         return ret
 
+    def get_id(self, external_id):
+        url = self.base + '/rest/patients/eid/' + external_id
+        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
+        r.raise_for_status()
+        return json.loads(r.text)['id']
+
     def get_pedigree(self, patient_id):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.PedigreeClass/0'
         r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
