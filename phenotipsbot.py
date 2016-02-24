@@ -29,7 +29,7 @@ class PhenoTipsBot:
 
     driver = None
 
-    def __init__(self, base_url, username, password, ssl_verify=False):
+    def __init__(self, base_url, username, password, ssl_verify=True):
         self.base = base_url
         self.auth = (username, password)
         self.ssl_verify = ssl_verify
