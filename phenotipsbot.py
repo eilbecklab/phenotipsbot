@@ -68,6 +68,11 @@ class PhenoTipsBot:
         r = requests.delete(self.base + '/rest/patients/' + patient_id, auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
 
+    def delete_relative(self, patient_id, relative_num):
+        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.RelativeClass/' + relative_num
+        r = requests.delete(url, auth=self.auth, verify=self.ssl_verify)
+        r.raise_for_status()
+
     def export_pedigree_ped(self, patient_id, id_generation='external'):
         self.init_phantom()
         url = self.base + '/bin/' + patient_id + '?sheet=PhenoTips.PedigreeEditor'
