@@ -51,27 +51,31 @@ class PhenoTipsBot:
         r.raise_for_status()
         return patient_id
 
-    def create_relative(self, patient_id, relative_obj):
+    def create_object(self, patient_id, object_class, object_obj):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects'
-        data = {
-            'className': 'PhenoTips.RelativeClass',
-            'property#relative_of': relative_obj['relative_of'],
-            'property#relative_type': relative_obj['relative_type'],
-        }
+        data = {'className': object_class}
+        for key, value in object_obj:
+            data['property#' + key] = value
         r = requests.post(url, auth=self.auth, data=data, verify=self.ssl_verify)
         r.raise_for_status()
-        relative_number = r.headers['location']
-        relative_number = relative_number[relative_number.rfind('/')+1:]
-        return relative_number
+        object_number = r.headers['location']
+        object_number = object_number[object_number.rfind('/')+1:]
+        return object_number
+
+    def create_relative(self, patient_id, relative_obj):
+        return self.create_object(patient_id, 'PhenoTips.RelativeClass', relative_obj)
 
     def delete(self, patient_id):
         r = requests.delete(self.base + '/rest/patients/' + patient_id, auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
 
-    def delete_relative(self, patient_id, relative_num):
-        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.RelativeClass/' + relative_num
+    def delete_object(self, patient_id, object_class, object_num):
+        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/' + object_class + '/' + relative_num
         r = requests.delete(url, auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
+
+    def delete_relative(self, patient_id, relative_num):
+        return self.delete_object(patient_id, 'PhenoTips.RelativeClass', relative_num)
 
     def export_pedigree_ped(self, patient_id, id_generation='external'):
         self.init_phantom()
@@ -81,7 +85,16 @@ class PhenoTipsBot:
         return self.driver.execute_script('return window.PedigreeExport.exportAsPED(window.editor.getGraph().DG, ' + json.dumps(id_generation) + ');')
 
     def get(self, patient_id):
-        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.PatientClass/0/properties'
+        return self.get_object(patient_id, 'PhenoTips.PatientClass', '0')
+
+    def get_id(self, external_id):
+        url = self.base + '/rest/patients/eid/' + external_id
+        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
+        r.raise_for_status()
+        return json.loads(r.text)['id']
+
+    def get_object(self, patient_id, object_class, object_num):
+        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/' + object_class + '/' + object_num
         r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
         root = ElementTree.fromstring(r.text)
@@ -90,19 +103,8 @@ class PhenoTipsBot:
             ret[prop.attrib['name']] = prop.find('{http://www.xwiki.org}value').text
         return ret
 
-    def get_id(self, external_id):
-        url = self.base + '/rest/patients/eid/' + external_id
-        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
-        r.raise_for_status()
-        return json.loads(r.text)['id']
-
     def get_pedigree(self, patient_id):
-        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.PedigreeClass/0'
-        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
-        r.raise_for_status()
-        root = ElementTree.fromstring(r.text)
-        el = root.find('{http://www.xwiki.org}property[@name="data"]/{http://www.xwiki.org}value')
-        return json.loads(el.text)
+        return json.loads(self.get_object(patient_id, 'PhenoTips.PedigreeClass', '0')['data'])
 
     def get_relative(self, patient_id, relative_num):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.RelativeClass/' + relative_num
@@ -167,10 +169,13 @@ class PhenoTipsBot:
         return list(map(lambda el: el.text, number_elements))
 
     def set(self, patient_id, patient_obj):
-        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.PatientClass/0'
+        self.set_object(patient_od, 'PhenoTips.PatientClass', '0', patient_obj)
+
+    def set_object(self, patient_id, object_class, object_num, object_obj):
+        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/' + object_class + '/' + object_num
         data = {}
-        for key in patient_obj:
-            data['property#' + key] = patient_obj[key]
+        for key, value in object_obj:
+            data['property#' + key] = value
         r = requests.put(url, auth=self.auth, data=data, verify=self.ssl_verify)
         r.raise_for_status()
 
@@ -186,13 +191,7 @@ class PhenoTipsBot:
         self.driver.find_element_by_css_selector('#action-save.menu-item') #wait for the image to be saved
 
     def set_relative(self, patient_id, relative_num, relative_obj):
-        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.RelativeClass/' + relative_num
-        data = {
-            'property#relative_of': relative_obj['relative_of'],
-            'property#relative_type': relative_obj['relative_type'],
-        }
-        r = requests.put(url, auth=self.auth, data=data, verify=self.ssl_verify)
-        r.raise_for_status()
+        self.set_object(patient_id, 'PhenoTips.RelativeClass', relative_num, relative_obj)
 
     def set_study(self, patient_id, study):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.StudyBindingClass/0'
@@ -201,13 +200,7 @@ class PhenoTipsBot:
             if study == None:
                 return
             else:
-                url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects'
-                data = {
-                    'className': 'PhenoTips.StudyBindingClass',
-                    'property#studyReference': 'xwiki:Studies.' + study,
-                }
-                r = requests.post(url, auth=self.auth, data=data, verify=self.ssl_verify)
-                r.raise_for_status()
+                self.create_object(patient_id, 'PhenoTips.StudyBindingClass', {'studyReference': 'xwiki:Studies.' + study})
         else:
             r.raise_for_status()
             if study == None:
