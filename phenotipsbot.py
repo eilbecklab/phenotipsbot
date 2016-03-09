@@ -158,15 +158,16 @@ class PhenoTipsBot:
         id_elements = root.findall('./{https://phenotips.org/}patientSummary/{https://phenotips.org/}id')
         return list(map(lambda el: el.text, id_elements))
 
-    def list_relatives(self, patient_id):
-        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.RelativeClass'
+    def list_objects(self, patient_id, object_class):
+        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/' + object_class
         r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
         root = ElementTree.fromstring(r.text)
         number_elements = root.findall('./{http://www.xwiki.org}objectSummary/{http://www.xwiki.org}number')
-        print(url)
-        print(number_elements)
         return list(map(lambda el: el.text, number_elements))
+
+    def list_relatives(self, patient_id):
+        return self.list_objects(patient_id, 'PhenoTips.RelativeClass')
 
     def set(self, patient_id, patient_obj):
         self.set_object(patient_od, 'PhenoTips.PatientClass', '0', patient_obj)
