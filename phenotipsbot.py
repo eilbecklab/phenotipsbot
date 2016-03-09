@@ -75,7 +75,7 @@ class PhenoTipsBot:
         r.raise_for_status()
 
     def delete_relative(self, patient_id, relative_num):
-        return self.delete_object(patient_id, 'PhenoTips.RelativeClass', relative_num)
+        self.delete_object(patient_id, 'PhenoTips.RelativeClass', relative_num)
 
     def export_pedigree_ped(self, patient_id, id_generation='external'):
         self.init_phantom()
