@@ -33,8 +33,20 @@ Creates a new patient page and returns the patient ID (e.g. 'P000123'). If
 patient_obj, study, or pedigree is given, set, set_study, or set_pedigree is
 also called.
 
+#### create_object(patient_id, object_class, object_obj)
+Creates an arbitrary object on a patient page and returns its object number.
+
 #### create_relative(patient_id, relative_obj)
 Creates a new relative relationship and returns the relative number.
+
+#### delete(patient_id)
+Deletes a patient page.
+
+#### delete_object(patient_id, object_class, object_num)
+Deletes an arbitrary object from a patient page.
+
+#### delete_relative(patient_id, relative_num)
+Deletes a relative relationship.
 
 #### export_pedigree_ped(patient_id, id_generation='external')
 Returns a string in
@@ -45,8 +57,11 @@ represents the pedigree data. id_generation can be 'external', 'newid', or
 #### get(patient_id)
 Returns a patient object corresponding to the patient with the specified ID.
 
-#### get_id(self, external_id):
+#### get_id(external_id):
 Translates an external ID to a patient ID.
+
+#### get_object(patient_id, object_class, object_num)
+Returns an arbitrary object on a patient page.
 
 #### get_pedigree(patient_id)
 Returns the patient's pedigree, which is displayed to the user as an SVG image,
@@ -66,13 +81,21 @@ Replaces the pedigree with one created from the specified
 #### list()
 Returns a list of patient IDs on the server.
 
+#### list_objects(patient_id, object_class)
+Returns a list of the numbers of the objects of a particular class that are
+attached to the patient page.
+
 #### list_relatives(patient_id)
-Returns a list of the relative numbers attached to the patient.
+Returns a list of the numbers of the relatives attached to the patient page.
 
 #### set(patient_id, patient_obj)
 Updates the properties of the patient from the values in the patient object.
 Only properties that exist in both the patient object and on the server are
 updated.
+
+#### set_object(patient_id, object_class, object_obj)
+Updates the properties of an object. Only properties that exist in both
+object_obj and on the server are updated.
 
 #### set_pedigree(patient_id, pedigree_obj)
 Sets the patient's pedigree data and updates the SVG image that is shown to the
