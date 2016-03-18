@@ -207,8 +207,8 @@ if not password:
     password = 'admin'
 
 if study == None:
-    yes = input('Are there any custom study forms (blank for no)? ')
-    if yes and yes[0] == 'y':
+    study = input('Are there any custom study forms (blank for no)? ')
+    if study and study[0] == 'y':
         study = input('Input the study form to use (blank for default): ')
     else:
         study = None
