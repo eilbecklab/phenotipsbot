@@ -170,7 +170,7 @@ class PhenoTipsBot:
         return self.list_objects(patient_id, 'PhenoTips.RelativeClass')
 
     def set(self, patient_id, patient_obj):
-        self.set_object(patient_od, 'PhenoTips.PatientClass', '0', patient_obj)
+        self.set_object(patient_id, 'PhenoTips.PatientClass', '0', patient_obj)
 
     def set_object(self, patient_id, object_class, object_num, object_obj):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/' + object_class + '/' + object_num
