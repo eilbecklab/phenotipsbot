@@ -54,7 +54,7 @@ class PhenoTipsBot:
     def create_object(self, patient_id, object_class, object_obj):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects'
         data = {'className': object_class}
-        for key, value in object_obj:
+        for key, value in object_obj.items():
             data['property#' + key] = value
         r = requests.post(url, auth=self.auth, data=data, verify=self.ssl_verify)
         r.raise_for_status()
@@ -175,7 +175,7 @@ class PhenoTipsBot:
     def set_object(self, patient_id, object_class, object_num, object_obj):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/' + object_class + '/' + object_num
         data = {}
-        for key, value in object_obj:
+        for key, value in object_obj.items():
             data['property#' + key] = value
         r = requests.put(url, auth=self.auth, data=data, verify=self.ssl_verify)
         r.raise_for_status()
