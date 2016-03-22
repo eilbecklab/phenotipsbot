@@ -125,7 +125,10 @@ class PhenoTipsBot:
             r.raise_for_status()
             root = ElementTree.fromstring(r.text)
             el = root.find('{http://www.xwiki.org}property[@name="studyReference"]/{http://www.xwiki.org}value')
-            return el.text[len('xwiki:Studies.'):]
+            if not el.text:
+                return ''
+            else:
+                return el.text[len('xwiki:Studies.'):]
 
     def import_pedigree_ped(self, patient_id, pedigree_str, mark_evaluated=False, external_id_mark=True, accept_unknown_phenotypes=True):
         self.init_phantom()

@@ -72,7 +72,10 @@ Returns the patient's relative with the specified number.
 
 #### get_study(patient_id)
 Returns the name of the patient's study form. 'xwiki:Studies.' is automatically
-removed from the study name.
+removed from the study name. If the patient does not have a StudyBindingClass
+(usually because no studies have been defined), this function returns None. If
+the patient does have a StudyBindingClass but it's set to the default study
+form, this function returns an empty string.
 
 #### import_pedigree_ped(patient_id, pedigree_str, mark_evaluated=False, external_id_mark=True, accept_unknown_phenotypes=True)
 Replaces the pedigree with one created from the specified
