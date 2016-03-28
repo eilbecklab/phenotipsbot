@@ -78,6 +78,7 @@ for row in reader:
             clinvar_variant = {}
 
             clinvar_variant['gene_symbol'] = 'MCAD'
+            clinvar_variant['reference_sequence'] = 'NM_000016.4'
             clinvar_variant['hgvs'] = row[column]
 
             significance_map = {
