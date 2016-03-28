@@ -2,7 +2,7 @@
 #
 # Program for importing patient records from CSV files into PhenoTips
 #
-# Copyright 2015 University of Utah
+# Copyright 2016 University of Utah
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
