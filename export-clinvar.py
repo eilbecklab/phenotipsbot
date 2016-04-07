@@ -26,6 +26,7 @@ import time
 from collections import OrderedDict
 from datetime import date
 from datetime import timedelta
+from dateutil.parser import parse as parsedate
 from getopt import getopt
 from getpass import getpass
 from phenotipsbot import PhenoTipsBot
@@ -165,7 +166,7 @@ for structured_data_key, structured_data_values in structured_data.items():
         omim_ids             = ''
     condition_category       = structured_data_key[5]
     clinical_significance    = structured_data_key[6]
-    date_last_evaluated      = ''
+    date_last_evaluated      = date.min
     mode_of_inheritance      = set()
     collection_method        = structured_data_key[7]
     allele_origin            = structured_data_key[8]
@@ -210,8 +211,12 @@ for structured_data_key, structured_data_values in structured_data.items():
             official_allele_name = clinvar_variant_obj['official_allele_name']
         if clinvar_variant_obj.get('url') and not url:
             url = clinvar_variant_obj['url']
-        if clinvar_variant_obj.get('date_last_evaluated') > date_last_evaluated:
-            date_last_evaluated = clinvar_variant_obj['date_last_evaluated']
+        try:
+            variant_date_last_evaluated = parsedate(clinvar_variant_obj['date_last_evaluated']).date()
+            if variant_date_last_evaluated > date_last_evaluated:
+                date_last_evaluated = variant_date_last_evaluated
+        except Exception:
+            pass
         if patient_obj.get('global_mode_of_inheritance'):
             for term in patient_obj['global_mode_of_inheritance']:
                 if term == 'HP:0003745':
@@ -364,7 +369,7 @@ for structured_data_key, structured_data_values in structured_data.items():
         '',
         '',
         clinical_significance,
-        date_last_evaluated,
+        date_last_evaluated.isoformat(),
         '',
         '',
         ';'.join(sorted(mode_of_inheritance)),
