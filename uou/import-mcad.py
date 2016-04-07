@@ -71,14 +71,41 @@ for row in reader:
 
     patient = {}
     patient['external_id'] = 'mcad:' + row[0]
+    patient['global_mode_of_inheritance'] = 'HP:0000007'
+    patient['omim_id'] = '201450'
+
+    phenotype = []
+    if int(row[32]) == 1:
+        phenotype.append('HP:0001259')
+    if int(row[33]) == 1:
+        phenotype.append('HP:0001298')
+    if int(row[34]) == 1:
+        phenotype.append('HP:0002240')
+    if int(row[35]) == 1:
+        phenotype.append('HP:0001943')
+    if int(row[36]) == 1:
+        phenotype.append('HP:0001254')
+    if int(row[37]) == 1:
+        phenotype.append('HP:0001399')
+    if int(row[38]) == 1:
+        phenotype.append('HP:0006582')
+    if int(row[39]) == 1:
+        phenotype.append('HP:0001250')
+    if int(row[41]) == 1:
+        phenotype.append('HP:0002013')
+    patient['phenotype'] = '|'.join(phenotype)
 
     clinvar_variants = []
     for column in (4, 8, 12, 16):
         if row[column]:
             clinvar_variant = {}
 
-            clinvar_variant['gene_symbol'] = 'MCAD'
+            clinvar_variant['gene_symbol'] = 'ACADM'
             clinvar_variant['reference_sequence'] = 'NM_000016.4'
+            clinvar_variant['date_last_evaluated'] = '2015-02-20'
+            clinvar_variant['collection_method'] = 'clinical testing'
+            clinvar_variant['test_name_or_type'] = 'GTR000500814.1'
+            clinvar_variant['platform_type'] = 'Sanger'
             clinvar_variant['hgvs'] = row[column]
 
             significance_map = {
@@ -106,27 +133,6 @@ for row in reader:
             clinvar_variant['zygosity'] = zygosity_map[zygosity]
 
             clinvar_variants.append(clinvar_variant)
-
-    phenotype = []
-    if int(row[32]) == 1:
-        phenotype.append('HP:0001259')
-    if int(row[33]) == 1:
-        phenotype.append('HP:0001298')
-    if int(row[34]) == 1:
-        phenotype.append('HP:0002240')
-    if int(row[35]) == 1:
-        phenotype.append('HP:0001943')
-    if int(row[36]) == 1:
-        phenotype.append('HP:0001254')
-    if int(row[37]) == 1:
-        phenotype.append('HP:0001399')
-    if int(row[38]) == 1:
-        phenotype.append('HP:0006582')
-    if int(row[39]) == 1:
-        phenotype.append('HP:0001250')
-    if int(row[41]) == 1:
-        phenotype.append('HP:0002013')
-    patient['phenotype'] = '|'.join(phenotype)
 
     patients.append((patient, clinvar_variants))
 

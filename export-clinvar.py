@@ -91,8 +91,339 @@ if study == None:
 start_time = time.time()
 bot = PhenoTipsBot(base_url, username, password)
 
-aggregate_data = csv.writer(open('Variant.csv', 'w'))
-aggregate_data.writerow([
+aggregate_data = []
+case_data = []
+
+structured_data = OrderedDict()
+patient_ids = bot.list()
+count = 0
+
+print('Looking through ' + str(len(patient_ids)) + ' patient records...')
+
+for patient_id in patient_ids:
+    count += 1
+    stdout.write(str(count) + '\r')
+
+    if study != None:
+        patient_study = bot.get_study(patient_id)
+        if study != patient_study.lower() and not (study == '' and patient_study == None):
+            continue
+
+    clinvar_variant_nums = bot.list_objects(patient_id, 'Main.ClinVarVariant')
+    if len(clinvar_variant_nums) == 0:
+        continue
+
+    patient_obj = bot.get(patient_id)
+
+    for clinvar_variant_num in clinvar_variant_nums:
+        clinvar_variant_obj = bot.get_object(patient_id, 'Main.ClinVarVariant', clinvar_variant_num)
+        gene_symbol = clinvar_variant_obj.get('gene_symbol')
+
+        if gene and (not gene_symbol or not gene in gene_symbol.upper().split(';')):
+            continue
+
+        #we aggregate all fields except for these
+        structured_data_key = (
+            clinvar_variant_obj['reference_sequence']    if 'reference_sequence'    in clinvar_variant_obj else None,
+            clinvar_variant_obj['hgvs']                  if 'hgvs'                  in clinvar_variant_obj else None,
+            clinvar_variant_obj['cis_or_trans']          if 'cis_or_trans'          in clinvar_variant_obj else None,
+            clinvar_variant_obj['location']              if 'location'              in clinvar_variant_obj else None,
+            patient_obj['omim_id']                       if 'omim_id'               in patient_obj         else None,
+            clinvar_variant_obj['condition_category']    if 'condition_category'    in clinvar_variant_obj else None,
+            clinvar_variant_obj['clinical_significance'] if 'clinical_significance' in clinvar_variant_obj else None,
+            clinvar_variant_obj['collection_method']     if 'collection_method'     in clinvar_variant_obj else None,
+            clinvar_variant_obj['allele_origin']         if 'allele_origin'         in clinvar_variant_obj else None,
+            clinvar_variant_obj['tissue']                if 'tissue'                in clinvar_variant_obj else None,
+            patient_obj        ['case_or_control']       if 'case_or_control'       in patient_obj         else None,
+        )
+
+        if not structured_data_key in structured_data:
+            structured_data[structured_data_key] = []
+
+        structured_data[structured_data_key].append((patient_obj, clinvar_variant_obj))
+
+linking_id = 0
+case_count = 0
+max_methods = 0
+
+print('Writing files Variant.csv and CaseData.csv...')
+
+for structured_data_key, structured_data_values in structured_data.items():
+    linking_id += 1
+    gene_symbols             = set()
+    reference_sequence       = structured_data_key[0]
+    hgvs                     = structured_data_key[1]
+    cis_or_trans             = structured_data_key[2]
+    variation_identifiers    = set()
+    location                 = structured_data_key[3]
+    alternate_designations   = set()
+    official_allele_name     = ''
+    url                      = ''
+    if structured_data_key[4]:
+        omim_ids             = structured_data_key[4].replace('|', ';')
+    else:
+        omim_ids             = ''
+    condition_category       = structured_data_key[5]
+    clinical_significance    = structured_data_key[6]
+    date_last_evaluated      = ''
+    mode_of_inheritance      = set()
+    collection_method        = structured_data_key[7]
+    allele_origin            = structured_data_key[8]
+    clinical_features        = set()
+    tissue                   = structured_data_key[9]
+    if structured_data_key[10] == 'case':
+        affected_status      = 'yes'
+    elif structured_data_key[10] == 'control':
+        affected_status      = 'no'
+    else:
+        affected_status      = 'unknown'
+    individuals_with_variant = 0
+    chromosomes_with_variant = 0
+    mosaicism                = 0
+    homozygotes              = 0
+    single_heterozygotes     = 0
+    compound_heterozygotes   = 0
+    hemizygotes              = 0
+    methods                  = set()
+
+    for patient_obj, clinvar_variant_obj in structured_data_values:
+        patient_external_id = ''
+        patient_clinical_features = []
+        patient_sex = ''
+        patient_cosanguinity = ''
+        patient_condition_comment = ''
+        patient_is_proband = ''
+        patient_kindred_id = ''
+        patient_mosaicism = ''
+        patient_zygosity = ''
+        variant_method = ('', '')
+
+        if patient_obj.get('external_id'):
+            patient_external_id = patient_obj['external_id']
+        if clinvar_variant_obj.get('gene_symbol'):
+            gene_symbols |= set(clinvar_variant_obj['gene_symbol'].split(';'))
+        if clinvar_variant_obj.get('variation_identifiers'):
+            variation_identifiers |= set(clinvar_variant_obj['variation_identifiers'].split(';'))
+        if clinvar_variant_obj.get('alternate_designations'):
+            alternate_designations |= set(clinvar_variant_obj['alternate_designations'].split('|'))
+        if clinvar_variant_obj.get('official_allele_name') and not official_allele_name:
+            official_allele_name = clinvar_variant_obj['official_allele_name']
+        if clinvar_variant_obj.get('url') and not url:
+            url = clinvar_variant_obj['url']
+        if clinvar_variant_obj.get('date_last_evaluated') > date_last_evaluated:
+            date_last_evaluated = clinvar_variant_obj['date_last_evaluated']
+        if patient_obj.get('global_mode_of_inheritance'):
+            for term in patient_obj['global_mode_of_inheritance']:
+                if term == 'HP:0003745':
+                    mode_of_inheritance |= 'Sporadic'
+                elif term == 'HP:0000006':
+                    mode_of_inheritance |= 'Autosomal dominant inheritance'
+                elif term == 'HP:0001470':
+                    mode_of_inheritance |= 'Sex-limited autosomal dominant'
+                elif term == 'HP:0001475':
+                    mode_of_inheritance |= 'Male-limited autosomal dominant'
+                elif term == 'HP:0001444':
+                    mode_of_inheritance |= 'Autosomal dominant somatic cell mutation'
+                elif term == 'HP:0001452':
+                    mode_of_inheritance |= 'Autosomal dominant contiguous gene syndrome'
+                elif term == 'HP:0000007':
+                    mode_of_inheritance |= 'Autosomal recessive inheritance'
+                elif term == 'HP:0010985':
+                    mode_of_inheritance |= 'Gonosomal inheritance'
+                elif term == 'HP:0001417':
+                    mode_of_inheritance |= 'X-linked inheritance'
+                elif term == 'HP:0001423':
+                    mode_of_inheritance |= 'X-linked dominant inheritance'
+                elif term == 'HP:0001419':
+                    mode_of_inheritance |= 'X-linked recessive inheritance'
+                elif term == 'HP:0001450':
+                    mode_of_inheritance |= 'Y-linked inheritance'
+                elif term == 'HP:0001426':
+                    mode_of_inheritance |= 'Multifactorial inheritance'
+                elif term == 'HP:0010984':
+                    mode_of_inheritance |= 'Digenic inheritance'
+                elif term == 'HP:0010983':
+                    mode_of_inheritance |= 'Oligogenic inheritance'
+                elif term == 'HP:0010982':
+                    mode_of_inheritance |= 'Polygenic inheritance'
+                elif term == 'HP:0001427':
+                    mode_of_inheritance |= 'Mitochondrial inheritance'
+        if patient_obj.get('phenotype'):
+            patient_clinical_features = set(patient_obj['phenotype'].split('|'))
+            clinical_features |= patient_clinical_features
+        if patient_obj.get('gender'):
+            patient_sex = patient_obj['gender']
+        if clinvar_variant_obj.get('mosaicism') == 'yes':
+            mosaicism += 1
+            patient_mosaicism = 'yes'
+        elif clinvar_variant_obj.get('mosaicism') == 'no':
+            patient_mosaicism = 'no'
+        patient_zygosity = clinvar_variant_obj.get('zygosity')
+        if patient_zygosity == 'single heterozygote':
+            individuals_with_variant += 1
+            chromosomes_with_variant += 1
+            single_heterozygotes += 1
+        elif patient_zygosity == 'compound heterozygote':
+            individuals_with_variant += 1
+            chromosomes_with_variant += 1
+            compound_heterozygotes += 1
+        elif patient_zygosity == 'homozygote':
+            individuals_with_variant += 1
+            chromosomes_with_variant += 2
+            homozygotes += 1
+        elif patient_zygosity == 'hemizygote':
+            individuals_with_variant += 1
+            chromosomes_with_variant += 1
+            hemizygotes += 1
+        if patient_obj.get('consanguinity') == 0:
+            patient_consanguinity = 'no'
+        elif patient_obj.get('consanguinity') == 1:
+            patient_cosanguinity = 'yes'
+        if patient_obj.get('diagnosis_notes'):
+            patient_condition_comment = patient_obj['diagnosis_notes']
+        if patient_obj.get('subject_data_relationship'):
+            if patient_obj['subject_data_relationship'].lower() == 'proband':
+                patient_is_proband = 'yes'
+            else:
+                patient_is_proband = 'no'
+        if patient_obj.get('kindred_id'):
+            patient_kindred_id = patient_obj['kindred_id']
+        if clinvar_variant_obj.get('test_name_or_type') or clinvar_variant_obj.get('platform_type'):
+            variant_method = (clinvar_variant_obj.get('test_name_or_type', ''), clinvar_variant_obj.get('platform_type', ''))
+            methods.add(variant_method)
+
+        case_data.append([
+            linking_id,
+            patient_external_id,
+            collection_method,
+            allele_origin,
+            affected_status,
+            '',
+            ';'.join(sorted(patient_clinical_features)),
+            tissue,
+            patient_sex,
+            '',
+            '',
+            '',
+            '',
+            patient_cosanguinity,
+            patient_condition_comment,
+            '',
+            patient_is_proband,
+            patient_kindred_id,
+            '',
+            '',
+            patient_mosaicism,
+            patient_zygosity,
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            variant_method[0],
+            variant_method[1],
+        ])
+
+        case_count += 1
+
+    row = [
+        '',
+        linking_id,
+        ';'.join(sorted(gene_symbols)),
+        reference_sequence,
+        hgvs,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        cis_or_trans,
+        ';'.join(sorted(variation_identifiers)),
+        location,
+        '|'.join(sorted(alternate_designations)),
+        official_allele_name,
+        url,
+        '',
+        'OMIM',
+        omim_ids,
+        '',
+        condition_category,
+        '',
+        '',
+        clinical_significance,
+        date_last_evaluated,
+        '',
+        '',
+        ';'.join(sorted(mode_of_inheritance)),
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        collection_method,
+        allele_origin,
+        affected_status,
+        '',
+        ';'.join(sorted(clinical_features)),
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        len(structured_data_values),
+        '',
+        '',
+        individuals_with_variant,
+        chromosomes_with_variant,
+        '',
+        '',
+        mosaicism,
+        homozygotes,
+        single_heterozygotes,
+        compound_heterozygotes,
+        hemizygotes,
+        '',
+        '',
+        '',
+        '',
+    ]
+
+    for test_name_or_type, platform_type in sorted(methods):
+        row.append(test_name_or_type)
+        row.append(platform_type)
+        row.append('')
+        row.append('')
+        row.append('')
+        row.append('')
+        row.append('')
+        row.append('')
+        row.append('')
+        row.append('')
+
+    aggregate_data.append(row);
+
+    if len(methods) > max_methods:
+        max_methods = len(methods)
+
+aggregate_columns = [
     '##Local ID',
     'Linking ID',
     'Gene symbol',
@@ -185,10 +516,23 @@ aggregate_data.writerow([
     'ClinVarAccession',
     'Novel or Update',
     'Replaces ClinVarAccessions',
-])
+]
 
-case_data = csv.writer(open('CaseData.csv', 'w'))
-case_data.writerow([
+for i in range(1, max_methods):
+    aggregate_columns.insert(76, 'Test name or type')
+    aggregate_columns.insert(77, 'Platform type')
+    aggregate_columns.insert(78, 'Platform name')
+    aggregate_columns.insert(79, 'Method')
+    aggregate_columns.insert(80, 'Method purpose')
+    aggregate_columns.insert(81, 'Method citations')
+    aggregate_columns.insert(82, 'Software name and version')
+    aggregate_columns.insert(83, 'Software purpose')
+    aggregate_columns.insert(84, 'Testing laboratory')
+    aggregate_columns.insert(85, 'Date variant was reported to submitter')
+
+aggregate_data.insert(0, aggregate_columns)
+
+case_data.insert(0, [
     '##Linking ID',
     'Individual ID',
     'Collection method',
@@ -227,260 +571,8 @@ case_data.writerow([
     'Software purpose',
 ])
 
-structured_data = OrderedDict()
-patient_ids = bot.list()
-count = 0
-print('Looking through ' + str(len(patient_ids)) + ' patient records...')
-
-for patient_id in patient_ids:
-    count += 1
-    stdout.write(str(count) + '\r')
-
-    if study != None:
-        patient_study = bot.get_study(patient_id)
-        if study != patient_study.lower() and not (study == '' and patient_study == None):
-            continue
-
-    clinvar_variant_nums = bot.list_objects(patient_id, 'Main.ClinVarVariant')
-    if len(clinvar_variant_nums) == 0:
-        continue
-
-    patient_obj = bot.get(patient_id)
-
-    for clinvar_variant_num in clinvar_variant_nums:
-        clinvar_variant_obj = bot.get_object(patient_id, 'Main.ClinVarVariant', clinvar_variant_num)
-        gene_symbol = clinvar_variant_obj.get('gene_symbol')
-
-        if gene and (not gene_symbol or not gene in gene_symbol.upper().split(';')):
-            continue
-
-        #we aggregate all fields except for these
-        structured_data_key = (
-            clinvar_variant_obj['reference_sequence']    if 'reference_sequence'    in clinvar_variant_obj else None,
-            clinvar_variant_obj['hgvs']                  if 'hgvs'                  in clinvar_variant_obj else None,
-            clinvar_variant_obj['cis_or_trans']          if 'cis_or_trans'          in clinvar_variant_obj else None,
-            clinvar_variant_obj['location']              if 'location'              in clinvar_variant_obj else None,
-            clinvar_variant_obj['omim_id']               if 'omim_id'               in clinvar_variant_obj else None,
-            clinvar_variant_obj['condition_category']    if 'condition_category'    in clinvar_variant_obj else None,
-            clinvar_variant_obj['clinical_significance'] if 'clinical_significance' in clinvar_variant_obj else None,
-            clinvar_variant_obj['collection_method']     if 'collection_method'     in clinvar_variant_obj else None,
-            clinvar_variant_obj['allele_origin']         if 'allele_origin'         in clinvar_variant_obj else None,
-            clinvar_variant_obj['tissue']                if 'tissue'                in clinvar_variant_obj else None,
-            patient_obj        ['case_or_control']       if 'case_or_control'       in patient_obj         else None,
-        )
-
-        if not structured_data_key in structured_data:
-            structured_data[structured_data_key] = []
-
-        structured_data[structured_data_key].append((patient_obj, clinvar_variant_obj))
-
-linking_id = 0
-case_count = 0
-print('Writing files Variant.csv and CaseData.csv...')
-
-for structured_data_key, structured_data_values in structured_data.items():
-    linking_id += 1
-    gene_symbols             = set()
-    reference_sequence       = structured_data_key[0]
-    hgvs                     = structured_data_key[1]
-    cis_or_trans             = structured_data_key[2]
-    variation_identifiers    = set()
-    location                 = structured_data_key[3]
-    alternate_designations   = set()
-    official_allele_name     = ''
-    url                      = ''
-    if structured_data_key[4]:
-        omim_ids             = structured_data_key[4].replace('|', ';')
-    else:
-        omim_ids             = ''
-    condition_category       = structured_data_key[5]
-    clinical_significance    = structured_data_key[6]
-    date_last_evaluated      = ''
-    collection_method        = structured_data_key[7]
-    allele_origin            = structured_data_key[8]
-    clinical_features        = set()
-    tissue                   = structured_data_key[9]
-    if structured_data_key[10] == 'case':
-        affected_status      = 'yes'
-    elif structured_data_key[10] == 'control':
-        affected_status      = 'no'
-    else:
-        affected_status      = 'unknown'
-    individuals_with_variant = 0
-    chromosomes_with_variant = 0
-    mosaicism                = 0
-    homozygotes              = 0
-    single_heterozygotes     = 0
-    compound_heterozygotes   = 0
-    hemizygotes              = 0
-
-    for patient_obj, clinvar_variant_obj in structured_data_values:
-        patient_external_id = ''
-        patient_clinical_features = []
-        patient_sex = ''
-        patient_cosanguinity = ''
-        patient_condition_comment = ''
-        patient_is_proband = ''
-        patient_kindred_id = ''
-        patient_mosaicism = ''
-        patient_zygosity = ''
-
-        if patient_obj.get('external_id'):
-            patient_external_id = patient_obj['external_id']
-        if clinvar_variant_obj.get('gene_symbol'):
-            gene_symbols |= set(clinvar_variant_obj['gene_symbol'].split(';'))
-        if clinvar_variant_obj.get('variation_identifiers'):
-            variation_identifiers |= set(clinvar_variant_obj['variation_identifiers'].split(';'))
-        if clinvar_variant_obj.get('alternate_designations'):
-            alternate_designations |= set(clinvar_variant_obj['alternate_designations'].split('|'))
-        if clinvar_variant_obj.get('official_allele_name') and not official_allele_name:
-            official_allele_name = clinvar_variant_obj['official_allele_name']
-        if clinvar_variant_obj.get('url') and not url:
-            url = clinvar_variant_obj['url']
-        if clinvar_variant_obj.get('date_last_evaluated') > date_last_evaluated:
-            date_last_evaluated = clinvar_variant_obj['date_last_evaluated']
-        if patient_obj.get('phenotype'):
-            patient_clinical_features = set(patient_obj['phenotype'].split('|'))
-            clinical_features |= patient_clinical_features
-        if patient_obj.get('gender'):
-            patient_sex = patient_obj['gender']
-        if clinvar_variant_obj.get('mosaicism') == 'yes':
-            mosaicism += 1
-            patient_mosaicism = 'yes'
-        elif clinvar_variant_obj.get('mosaicism') == 'no':
-            patient_mosaicism = 'no'
-        patient_zygosity = clinvar_variant_obj.get('zygosity')
-        if patient_zygosity == 'single heterozygote':
-            individuals_with_variant += 1
-            chromosomes_with_variant += 1
-            single_heterozygotes += 1
-        elif patient_zygosity == 'compound heterozygote':
-            individuals_with_variant += 1
-            chromosomes_with_variant += 1
-            compound_heterozygotes += 1
-        elif patient_zygosity == 'homozygote':
-            individuals_with_variant += 1
-            chromosomes_with_variant += 2
-            homozygotes += 1
-        elif patient_zygosity == 'hemizygote':
-            individuals_with_variant += 1
-            chromosomes_with_variant += 1
-            hemizygotes += 1
-        if patient_obj.get('consanguinity') == 0:
-            patient_consanguinity = 'no'
-        elif patient_obj.get('consanguinity') == 1:
-            patient_cosanguinity = 'yes'
-        if patient_obj.get('diagnosis_notes'):
-            patient_condition_comment = patient_obj['diagnosis_notes']
-        if patient_obj.get('subject_data_relationship'):
-            if patient_obj['subject_data_relationship'].lower() == 'proband':
-                patient_is_proband = 'yes'
-            else:
-                patient_is_proband = 'no'
-        if patient_obj.get('kindred_id'):
-            patient_kindred_id = patient_obj['kindred_id']
-
-        case_data.writerow([
-            linking_id,
-            patient_external_id,
-            collection_method,
-            allele_origin,
-            affected_status,
-            '',
-            ';'.join(sorted(patient_clinical_features)),
-            tissue,
-            patient_sex,
-            '',
-            '',
-            '',
-            '',
-            patient_cosanguinity,
-            patient_condition_comment,
-            '',
-            patient_is_proband,
-            patient_kindred_id,
-            '',
-            '',
-            patient_mosaicism,
-            patient_zygosity,
-        ])
-
-        case_count += 1
-
-    aggregate_data.writerow([
-        '',
-        linking_id,
-        ';'.join(sorted(gene_symbols)),
-        reference_sequence,
-        hgvs,
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        cis_or_trans,
-        ';'.join(sorted(variation_identifiers)),
-        location,
-        '|'.join(sorted(alternate_designations)),
-        official_allele_name,
-        url,
-        '',
-        'OMIM',
-        omim_ids,
-        '',
-        condition_category,
-        '',
-        '',
-        clinical_significance,
-        date_last_evaluated,
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        collection_method,
-        allele_origin,
-        affected_status,
-        '',
-        ';'.join(sorted(clinical_features)),
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        len(structured_data_values),
-        '',
-        '',
-        individuals_with_variant,
-        chromosomes_with_variant,
-        '',
-        '',
-        mosaicism,
-        homozygotes,
-        single_heterozygotes,
-        compound_heterozygotes,
-        hemizygotes,
-    ])
+csv.writer(open('Variant.csv', 'w')).writerows(aggregate_data)
+csv.writer(open('CaseData.csv', 'w')).writerows(case_data)
 
 print('Exported ' + str(linking_id) + ' variants and ' + str(case_count) + ' cases.')
 print('Elapsed time ' + str(timedelta(seconds=time.time() - start_time)))
