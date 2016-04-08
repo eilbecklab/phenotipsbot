@@ -88,6 +88,9 @@ Returns a list of patient IDs on the server.
 Returns a list of the numbers of the objects of a particular class that are
 attached to the patient page.
 
+#### list_patient_class_properties()
+Returns a list of the possible property names that a patient object can have.
+
 #### list_relatives(patient_id)
 Returns a list of the numbers of the relatives attached to the patient page.
 

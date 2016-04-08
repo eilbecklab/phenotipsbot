@@ -169,6 +169,16 @@ class PhenoTipsBot:
         number_elements = root.findall('./{http://www.xwiki.org}objectSummary/{http://www.xwiki.org}number')
         return list(map(lambda el: el.text, number_elements))
 
+    def list_patient_class_properties(self):
+        url = self.base + '/rest/wikis/xwiki/classes/PhenoTips.PatientClass'
+        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
+        r.raise_for_status()
+        root = ElementTree.fromstring(r.text)
+        ret = []
+        for prop in root.iter('{http://www.xwiki.org}property'):
+            ret.append(prop.attrib['name'])
+        return ret
+
     def list_relatives(self, patient_id):
         return self.list_objects(patient_id, 'PhenoTips.RelativeClass')
 
