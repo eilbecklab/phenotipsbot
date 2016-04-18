@@ -28,7 +28,6 @@ from getopt import getopt
 from getpass import getpass
 from phenotipsbot import PhenoTipsBot
 from sys import stdout
-from traceback import print_exc
 
 #parse arguments
 
@@ -77,7 +76,7 @@ if study == None:
     sys.stderr.write('Are you exporting from a particular study (blank for no)? ')
     study = input()
     if study and study[0] == 'y':
-        sys.stderr.write('Input the study form to use (blank for default): ')
+        sys.stderr.write('Input the study to export from (blank for default): ')
         study = input()
     else:
         study = None
