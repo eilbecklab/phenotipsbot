@@ -94,6 +94,7 @@ KNOWN_FIELDS = {
     #IBD
     'age_at_diagnosis'                     : 'Float',
     'age_at_enrollment'                    : 'Float',
+    'lymphoblast_transformation_date'      : 'Date',
 }
 
 def normalize(field_name, value):
@@ -131,16 +132,17 @@ def normalize(field_name, value):
 #parse arguments
 
 if len(sys.argv) < 2:
-    print('Syntax: ./import-csv [--base-url=<value>] [--username=<value>] [--password=<value>] [--study=<value>] [--yes] <file>')
+    print('Syntax: ./import-csv [--base-url=<value>] [--username=<value>] [--password=<value>] [--study=<value>] [--update] [--yes] <file>')
     exit(1)
 
 base_url = None
 username = None
 password = None
 study = None
+update = False
 yes = False
 
-optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study=', 'yes'])
+optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study=', 'update', 'yes'])
 for name, value in optlist:
     if name == '--base-url':
         base_url = value
@@ -150,6 +152,8 @@ for name, value in optlist:
         password = value
     elif name == '--study':
         study = value
+    elif name == '--update':
+        update = True
     elif name in ('-y', '--yes'):
         yes = True
 
@@ -206,21 +210,45 @@ if not password:
 if not password:
     password = 'admin'
 
-if study == None:
+if study == None and not update:
     study = input('Are there any custom study forms (blank for no)? ')
     if study and study[0] == 'y':
         study = input('Input the study form to use (blank for default): ')
     else:
         study = None
 
+#initialize the bot
+
+bot = PhenoTipsBot(base_url, username, password)
+
+#check external IDs
+
+if update:
+    patient_ids = {}
+    count = 0
+
+    print('Checking ' + str(len(patients)) + ' external IDs...')
+
+    for patient in patients:
+        patient_ids[patient['external_id']] = bot.get_id(patient['external_id'])
+        count += 1
+        stdout.write(str(count) + '\r')
+
 #begin import
 
-if yes or input('You are about to import ' + str(len(patients)) + ' patients. Type y to continue: ')[0] == 'y':
-    bot = PhenoTipsBot(base_url, username, password)
+if update:
+    verb = 'update'
+else:
+    verb = 'import'
+
+if yes or input('You are about to ' + verb + ' ' + str(len(patients)) + ' patients. Type y to continue: ')[0] == 'y':
     count = 0
     start_time = time.time()
     for patient in patients:
-        bot.create(patient, study)
+        if update:
+            bot.set(patient_ids[patient['external_id']], patient)
+        else:
+            bot.create(patient, study)
         count += 1
         stdout.write(str(count) + '\r')
     print()
