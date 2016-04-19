@@ -93,6 +93,11 @@ writer = csv.writer(sys.stdout)
 writer.writerow(prop_names)
 
 for patient_id in patient_ids:
+    if study != None:
+        patient_study = bot.get_study(patient_id)
+        if patient_study != study and not (study == '' and patient_study == None):
+            continue
+
     patient = bot.get(patient_id)
     patient['identifier'] = 'P' + patient['identifier'].zfill(7)
     row = []
