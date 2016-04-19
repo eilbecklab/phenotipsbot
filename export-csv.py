@@ -26,6 +26,7 @@ from datetime import timedelta
 from getopt import getopt
 from getpass import getpass
 from phenotipsbot import PhenoTipsBot
+from sys import stderr
 from sys import stdout
 
 #parse arguments
@@ -83,15 +84,21 @@ if study == None:
 #begin export
 
 start_time = time.time()
+count = 0
 
 bot = PhenoTipsBot(base_url, username, password)
 patient_ids = bot.list()
 prop_names = bot.list_patient_class_properties()
 
+stderr.write('Looking through ' + str(len(patient_ids)) + ' patient records...\n')
+
 writer = csv.writer(sys.stdout)
 writer.writerow(prop_names)
 
 for patient_id in patient_ids:
+    stderr.write(str(count) + '\r')
+    count += 1
+
     if study != None:
         patient_study = bot.get_study(patient_id)
         if patient_study != study and not (study == '' and patient_study == None):
