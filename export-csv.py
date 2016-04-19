@@ -23,7 +23,6 @@ import csv
 import sys
 import time
 from datetime import timedelta
-from dateutil.parser import parse as parsedate
 from getopt import getopt
 from getpass import getpass
 from phenotipsbot import PhenoTipsBot
