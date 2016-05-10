@@ -93,7 +93,7 @@ reader = csv.reader(open(args[0], 'r'), delimiter='\t')
 relatives = list()
 
 for row in reader:
-    if len(row) == 0 or row[0] == '#':
+    if len(row) == 0 or row[0][0] == '#':
         continue
 
     child_external_id = row[1]
