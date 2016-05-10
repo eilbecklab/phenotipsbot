@@ -132,7 +132,7 @@ def normalize(field_name, value):
 #parse arguments
 
 if len(sys.argv) < 2:
-    print('Syntax: ./import-csv [--base-url=<value>] [--username=<value>] [--password=<value>] [--study=<value>] [--update] [--yes] <file>')
+    print('You must specify the file to import on the command line.')
     exit(1)
 
 base_url = None

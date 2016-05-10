@@ -32,7 +32,7 @@ from sys import stdout
 #parse arguments
 
 if len(sys.argv) < 2:
-    print('Syntax: ./import-ped [--base-url=<value>] [--username=<value>] [--password=<value>] [--yes] <file>')
+    print('You must specify the file to import on the command line.')
     exit(1)
 
 base_url = None

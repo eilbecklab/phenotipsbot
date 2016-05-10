@@ -1,2 +1,4 @@
-diagnosis_notes,enrollment_date,consent_signed_date,subject_mmi,external_id,lab_id,kindred_id,gender,subject_data_relationship,investigator,home_zip_code
-Cardio-facio-cutaneous syndrome,12/1/2015,12/1/2015,1234,mmi:1234,12345,6789,Female,Proband,Henrie,84108
+diagnosis_notes,enrollment_date,consent_signed_date,subject_mmi,external_id,lab_id,kindred_id,gender,investigator,home_zip_code
+Cardio-facio-cutaneous syndrome,12/1/2015,12/1/2015,1001,mmi:1001,1001,1000,Female,Henrie,84108
+Cardio-facio-cutaneous syndrome,12/1/2015,12/1/2015,1002,mmi:1002,1002,1000,Male,Henrie,84108
+Cardio-facio-cutaneous syndrome,12/1/2015,12/1/2015,1003,mmi:1003,1003,1000,Female,Henrie,84108
