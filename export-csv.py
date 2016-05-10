@@ -90,6 +90,7 @@ patient_ids = bot.list()
 prop_names = bot.list_patient_class_properties()
 
 stderr.write('Looking through ' + str(len(patient_ids)) + ' patient records...\n')
+stderr.write('\n')
 
 writer = csv.writer(sys.stdout)
 writer.writerow(prop_names)
@@ -110,5 +111,5 @@ for patient_id in patient_ids:
         row.append(patient[prop_name])
     writer.writerow(row)
 
-sys.stderr.write('\n')
-sys.stderr.write('All done! Elapsed time ' + str(timedelta(seconds=time.time() - start_time)) + '\n')
+stderr.write('\n')
+stderr.write('All done! Elapsed time ' + str(timedelta(seconds=time.time() - start_time)) + '\n')

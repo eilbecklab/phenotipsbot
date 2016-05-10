@@ -89,6 +89,7 @@ bot = PhenoTipsBot(base_url, username, password)
 patient_ids = bot.list()
 
 stderr.write('Looking through ' + str(len(patient_ids)) + ' patient records...\n')
+stderr.write('\n')
 
 stdout.write('#FID\tIID\tPAT\tMAT\tSEX\tPHENOTYPE\n')
 writer = csv.writer(sys.stdout, delimiter='\t')
@@ -141,3 +142,6 @@ for patient_id in patient_ids:
 
     stderr.write('          \r')
     writer.writerow([fid, iid, pat, mat, sex, phenotype])
+
+stderr.write('\n')
+stderr.write('All done! Elapsed time ' + str(timedelta(seconds=time.time() - start_time)) + '\n')

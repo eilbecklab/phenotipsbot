@@ -156,5 +156,4 @@ if yes or input('You are about to import ' + str(len(relatives)) + ' relationshi
         bot.create_relative(relative[0], relative[1])
         count += 1
         stdout.write(str(count) + '\r')
-    print()
     print('All done! Elapsed time ' + str(timedelta(seconds=time.time() - start_time)))

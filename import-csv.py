@@ -253,5 +253,4 @@ if yes or input('You are about to ' + verb + ' ' + str(len(patients)) + ' patien
             bot.create(patient, study)
         count += 1
         stdout.write(str(count) + '\r')
-    print()
     print('All done! Elapsed time ' + str(timedelta(seconds=time.time() - start_time)))
