@@ -35,9 +35,8 @@ base_url = None
 username = None
 password = None
 study = None
-yes = False
 
-optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study=', 'yes'])
+optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study='])
 for name, value in optlist:
     if name == '--base-url':
         base_url = value
@@ -47,8 +46,6 @@ for name, value in optlist:
         password = value
     elif name == '--study':
         study = value
-    elif name in ('-y', '--yes'):
-        yes = True
 
 #get any missing arguments
 
