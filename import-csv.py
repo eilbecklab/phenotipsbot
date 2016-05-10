@@ -216,6 +216,8 @@ if study == None and not update:
         study = input('Input the study form to use (blank for default): ')
     else:
         study = None
+elif study == 'None':
+    study = None
 
 #initialize the bot
 

@@ -80,6 +80,8 @@ if study == None:
         study = input()
     else:
         study = None
+elif study == 'None':
+    study = None
 
 #begin export
 

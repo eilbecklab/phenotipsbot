@@ -86,6 +86,8 @@ if study == None:
         study = input('Input the study to submit on (blank for default): ').lower()
     else:
         study = None
+elif study == 'None':
+    study = None
 
 #begin export
 
