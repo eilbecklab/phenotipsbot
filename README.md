@@ -10,13 +10,6 @@ This repository also includes several sample programs that use the PhenoTipsBot
 framework to perform common import and export operations. Use these as examples
 to create scripts that meet more complex needs.
 
-PhenoTipsBot depends on the
-[Python Selenium bindings](https://selenium-python.readthedocs.org/), the
-[Python requests library](http://docs.python-requests.org/en/latest/), and
-[PhantomJS](http://phantomjs.org/), but these can be easily installed with
-either `sudo apt-get install python-selenium phantomjs` or
-`sudo pacman -S python-selenium phantomjs` and `sudo pip install requests`.
-
 PhenoTipsBot uses a combination of the
 [PhenoTips REST API](https://phenotips.org/DevGuide/RESTfulAPI), the
 [XWiki REST API]
@@ -27,6 +20,7 @@ PatientClass. PhenoTips 1.2.2 or later is required.
 
 ## Table of contents
 * [Caution](#caution)
+* [Dependencies](#dependencies)
 * [Sample programs](#sample-programs)
     * [import-csv.py](#import-csvpy)
     * [export-csv.py](#export-csvpy)
@@ -50,6 +44,16 @@ instead of on the production server. To do so:
    phenotips directory.
 4. Start the local copy of PhenoTips. It will behave exactly like the production
    copy, including using the same usernames and passwords.
+
+## Dependencies
+PhenoTipsBot depends on the
+[Python Selenium bindings](https://selenium-python.readthedocs.org/), the
+[Python requests library](http://docs.python-requests.org/en/latest/), and
+[PhantomJS](http://phantomjs.org/), but these can be easily installed with:
+* `sudo apt-get install python-selenium`, `sudo pacman -S python-selenium`,
+  or `sudo pip install selenium`
+* `sudo pip install requests`
+* `sudo apt-get install phantomjs` or `sudo pacman -S phantomjs`
 
 ## Sample programs
 ### [import-csv.py](import-csv.py)
