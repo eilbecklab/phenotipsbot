@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 # Program for exporting patient relationships from PhenoTips in PED format
 #

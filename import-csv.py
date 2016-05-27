@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 # Program for importing patient records from CSV files into PhenoTips
 #
