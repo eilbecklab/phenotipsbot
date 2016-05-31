@@ -139,10 +139,9 @@ base_url = None
 username = None
 password = None
 study = None
-update = False
 yes = False
 
-optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study=', 'update', 'yes'])
+optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study=', 'yes'])
 for name, value in optlist:
     if name == '--base-url':
         base_url = value
@@ -152,8 +151,6 @@ for name, value in optlist:
         password = value
     elif name == '--study':
         study = value
-    elif name == '--update':
-        update = True
     elif name in ('-y', '--yes'):
         yes = True
 
@@ -212,7 +209,7 @@ if not password:
 
 bot = PhenoTipsBot(base_url, username, password)
 
-if study == None and not update:
+if study == None:
     studies = bot.list_studies()
     if len(studies):
         study = input('Input the study form to use (blank for default): ')
@@ -221,29 +218,30 @@ elif study == 'None':
 
 #check external IDs
 
-if update:
-    patient_ids = {}
-    count = 0
+patient_ids = {}
+count = 0
 
-    print('Checking ' + str(len(patients)) + ' external IDs...')
+print('Checking ' + str(len(patients)) + ' external IDs...')
 
-    for patient in patients:
-        patient_ids[patient['external_id']] = bot.get_id(patient['external_id'])
+for patient in patients:
+    external_id = patient.get('external_id')
+    if external_id:
+        patient_id = bot.get_id(external_id)
+        if patient_id:
+            patient_ids[external_id] = patient_id
         count += 1
         stdout.write(str(count) + '\r')
 
 #begin import
 
-if update:
-    verb = 'update'
-else:
-    verb = 'import'
+n_to_import = str(len(patients) - len(patient_ids))
+n_to_update = str(len(patient_ids))
 
-if yes or input('You are about to ' + verb + ' ' + str(len(patients)) + ' patients. Type y to continue: ')[0] == 'y':
+if yes or input('You are about to import ' + n_to_import + ' new patients and update ' + n_to_update + ' existing patients. Type y to continue: ')[0] == 'y':
     count = 0
     start_time = time.time()
     for patient in patients:
-        if update:
+        if patient_ids.get(patient.get('external_id')):
             bot.set(patient_ids[patient['external_id']], patient)
         else:
             bot.create(patient, study)

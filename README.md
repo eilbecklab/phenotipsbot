@@ -60,7 +60,7 @@ PhenoTipsBot depends on the
 #### Synopsis
 ```
 ./import-csv [--base-url=<value>] [--username=<value>] [--password=<value>]
-             [--study=(<value> | None)] [--update] [-y | --yes] <file>
+             [--study=(<value> | None)] [-y | --yes] <file>
 ```
 
 #### Description
@@ -69,6 +69,10 @@ Imports new patient records from a spreadsheet.
 The first row of the spreadsheet must contain the names of the PhenoTips fields
 that correspond to each column. You can see a list of PhenoTips field names by
 going to `/bin/PhenoTips/PatientClass` on your PhenoTips site.
+
+If the spreadsheet contains an external_id column and an external ID in the
+spreadsheet matches an external ID on the PhenoTips site, this script will
+update the existing patient instead of creating a new one.
 
 #### Options
 * `--base-url`
@@ -90,11 +94,6 @@ going to `/bin/PhenoTips/PatientClass` on your PhenoTips site.
       patients.
     * The script will prompt for this value if it is not provided on the command
       line.
-* `--update`
-    * If this option is specified, values from the spreadsheet correspond to
-      existing patients on the PhenoTips site. The spreadsheet must contain an
-      external_id column to match patients on the spreadsheet with patients on
-      the site.
 * `-y, --yes`
     * If this option is specified, the script does not ask for confirmation
       before performing any operations.
