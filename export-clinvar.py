@@ -53,7 +53,7 @@ for name, value in optlist:
     elif name == '--study':
         study = value.lower()
 
-#get any missing arguments
+#get any missing arguments and initialize the bot
 
 if not base_url:
     sys.stderr.write('Input the URL (blank for http://localhost:8080): ')
@@ -80,7 +80,9 @@ if not gene:
 if not username:
     gene = 'Admin'
 
-if study == None:
+bot = PhenoTipsBot(base_url, username, password)
+
+if study == None and len(bot.list_studies()):
     study = input('Are you submitting on a particular study (blank for no)? ')
     if study and study[0] == 'y':
         study = input('Input the study to submit on (blank for default): ').lower()
@@ -92,14 +94,13 @@ elif study == 'None':
 #begin export
 
 start_time = time.time()
-bot = PhenoTipsBot(base_url, username, password)
+count = 0
 
 aggregate_data = []
 case_data = []
 
 structured_data = OrderedDict()
 patient_ids = bot.list()
-count = 0
 
 print('Looking through ' + str(len(patient_ids)) + ' patient records...')
 

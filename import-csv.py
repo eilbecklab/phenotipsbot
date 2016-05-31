@@ -190,7 +190,7 @@ for row in reader:
 
     patients.append(patient)
 
-#get any missing arguments
+#get any missing arguments and initialize the bot
 
 if not base_url:
     base_url = input('Input the URL (blank for http://localhost:8080): ')
@@ -210,18 +210,14 @@ if not password:
 if not password:
     password = 'admin'
 
+bot = PhenoTipsBot(base_url, username, password)
+
 if study == None and not update:
-    study = input('Are there any custom study forms (blank for no)? ')
-    if study and study[0] == 'y':
+    studies = bot.list_studies()
+    if len(studies):
         study = input('Input the study form to use (blank for default): ')
-    else:
-        study = None
 elif study == 'None':
     study = None
-
-#initialize the bot
-
-bot = PhenoTipsBot(base_url, username, password)
 
 #check external IDs
 

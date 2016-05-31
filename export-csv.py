@@ -47,7 +47,7 @@ for name, value in optlist:
     elif name == '--study':
         study = value
 
-#get any missing arguments
+#get any missing arguments and initialize the bot
 
 if not base_url:
     sys.stderr.write('Input the URL (blank for http://localhost:8080): ')
@@ -69,7 +69,9 @@ if not password:
 if not password:
     password = 'admin'
 
-if study == None:
+bot = PhenoTipsBot(base_url, username, password)
+
+if study == None and len(bot.list_studies()):
     sys.stderr.write('Are you exporting from a particular study (blank for no)? ')
     study = input()
     if study and study[0] == 'y':
@@ -85,7 +87,6 @@ elif study == 'None':
 start_time = time.time()
 count = 0
 
-bot = PhenoTipsBot(base_url, username, password)
 patient_ids = bot.list()
 prop_names = bot.list_patient_class_properties()
 
