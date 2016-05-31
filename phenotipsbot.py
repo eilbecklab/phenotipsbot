@@ -182,6 +182,14 @@ class PhenoTipsBot:
     def list_relatives(self, patient_id):
         return self.list_objects(patient_id, 'PhenoTips.RelativeClass')
 
+    def list_studies(self):
+        url = self.base + '/rest/wikis/xwiki/spaces/Studies/pages'
+        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
+        r.raise_for_status()
+        root = ElementTree.fromstring(r.text)
+        name_elements = root.findall('./{http://www.xwiki.org}pageSummary/{http://www.xwiki.org}name')
+        return list(filter(lambda study: study not in ('WebHome', 'WebPreferences'), map(lambda el: el.text, name_elements)))
+
     def set(self, patient_id, patient_obj):
         self.set_object(patient_id, 'PhenoTips.PatientClass', '0', patient_obj)
 

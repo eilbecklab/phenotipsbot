@@ -429,6 +429,9 @@ Returns a list of the possible property names that a patient object can have.
 #### list_relatives(patient_id)
 Returns a list of the numbers of the relatives attached to the patient page.
 
+#### list_studies()
+Returns a list of the custom study forms defined on the server.
+
 #### set(patient_id, patient_obj)
 Updates the properties of the patient from the values in the patient object.
 Only properties that exist in both the patient object and on the server are
