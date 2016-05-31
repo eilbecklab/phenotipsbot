@@ -90,6 +90,8 @@ class PhenoTipsBot:
     def get_id(self, external_id):
         url = self.base + '/rest/patients/eid/' + external_id
         r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
+        if r.status_code == 404:
+            return None
         r.raise_for_status()
         return json.loads(r.text)['id']
 

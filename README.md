@@ -393,7 +393,8 @@ represents the pedigree data. id_generation can be 'external', 'newid', or
 Returns a patient object corresponding to the patient with the specified ID.
 
 #### get_id(external_id):
-Translates an external ID to a patient ID.
+Translates an external ID to a patient ID. If no patient has the external ID,
+returns None.
 
 #### get_object(patient_id, object_class, object_num)
 Returns an arbitrary object on a patient page.
