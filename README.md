@@ -38,7 +38,8 @@ PatientClass. PhenoTips 1.2.2 or later is required.
 It is a good idea to make a copy of your PhenoTips site and test changes locally
 instead of on the production server. To do so:
 
-1. Download and unzip a copy of PhenoTips onto your local machine.
+1. [Download](https://phenotips.org/Download) and unzip a copy of PhenoTips onto
+   your local machine.
 2. Delete the data directory inside the phenotips directory.
 3. Copy the data directory from your production copy of PhenoTips into the local
    phenotips directory.
