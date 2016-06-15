@@ -8,7 +8,8 @@ value being a string. Values are not validated during insertion.
 
 This repository also includes several sample programs that use the PhenoTipsBot
 framework to perform common import and export operations. Use these as examples
-to create scripts that meet more complex needs.
+to create scripts that meet more complex needs. There is also a [gui.py](gui.py)
+program that provides a graphical frontend to the import/export scripts.
 
 PhenoTipsBot uses a combination of the
 [PhenoTips REST API](https://phenotips.org/DevGuide/RESTfulAPI), the

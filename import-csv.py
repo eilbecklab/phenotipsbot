@@ -129,122 +129,143 @@ def normalize(field_name, value):
     except ValueError:
         return None
 
-#parse arguments
+def parse_csv_file(file_name, unrecognized_column_callback, unrecognized_value_callback):
+    reader = csv.reader(open(file_name, 'r'))
+    column_map = dict()
+    patients = list()
 
-if len(sys.argv) < 2:
-    print('You must specify the file to import on the command line.')
-    exit(1)
+    i = -1
+    for row in reader:
+        i += 1
 
-base_url = None
-username = None
-password = None
-study = None
-yes = False
+        #skip first row
+        if i == 0:
+            j = 0
+            for cell in row:
+                if cell in KNOWN_FIELDS:
+                    column_map[cell] = j
+                else:
+                    unrecognized_column_callback(cell)
+                j += 1
+            continue
 
-optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study=', 'yes'])
-for name, value in optlist:
-    if name == '--base-url':
-        base_url = value
-    elif name == '--username':
-        username = value
-    elif name == '--password':
-        password = value
-    elif name == '--study':
-        study = value
-    elif name in ('-y', '--yes'):
-        yes = True
+        patient = dict()
 
-#parse CSV file
+        for field in column_map:
+            value = row[column_map[field]]
+            if not value == '':
+                patient[field] = normalize(field, value)
+                if patient[field] == None:
+                    del patient[field]
+                    unrecognized_value_callback(value, field)
 
-reader = csv.reader(open(args[0], 'r'))
-column_map = dict()
-patients = list()
+        patients.append(patient)
 
-i = -1
-for row in reader:
-    i += 1
+    return patients
 
-    #skip first row
-    if i == 0:
-        j = 0
-        for cell in row:
-            if cell in KNOWN_FIELDS:
-                column_map[cell] = j
-            else:
-                print('WARNING: Ignoring unrecognized column "' + cell + '"')
-            j += 1
-        continue
+def get_patient_ids(bot, patients, progress_callback):
+    patient_ids = {}
+    count = 0
 
-    patient = dict()
+    for patient in patients:
+        external_id = patient.get('external_id')
+        if external_id:
+            patient_id = bot.get_id(external_id)
+            if patient_id:
+                patient_ids[external_id] = patient_id
+            count += 1
+            progress_callback(count)
 
-    for field in column_map:
-        value = row[column_map[field]]
-        if not value == '':
-            patient[field] = normalize(field, value)
-            if patient[field] == None:
-                del patient[field]
-                print('WARNING: Ignoring unrecognized value "' + value + '" for "' + field + '"')
+    return patient_ids
 
-    patients.append(patient)
-
-#get any missing arguments and initialize the bot
-
-if not base_url:
-    base_url = input('Input the URL (blank for http://localhost:8080): ')
-if not base_url:
-    base_url = 'http://localhost:8080'
-if not base_url.startswith('http://') and not base_url.startswith('https://'):
-    base_url = 'http://' + base_url
-base_url = base_url.rstrip('/')
-
-if not username:
-    username = input('Input your username (blank for Admin): ')
-if not username:
-    username = 'Admin'
-
-if not password:
-    password = getpass('Input your password (blank for admin): ')
-if not password:
-    password = 'admin'
-
-bot = PhenoTipsBot(base_url, username, password)
-
-if study == None:
-    studies = bot.list_studies()
-    if len(studies):
-        study = input('Input the study form to use (blank for default): ')
-elif study == 'None':
-    study = None
-
-#check external IDs
-
-patient_ids = {}
-count = 0
-
-print('Checking ' + str(len(patients)) + ' external IDs...')
-
-for patient in patients:
-    external_id = patient.get('external_id')
-    if external_id:
-        patient_id = bot.get_id(external_id)
-        if patient_id:
-            patient_ids[external_id] = patient_id
-        count += 1
-        stdout.write(str(count) + '\r')
-
-#begin import
-
-n_to_import = str(len(patients) - len(patient_ids))
-n_to_update = str(len(patient_ids))
-
-if yes or input('You are about to import ' + n_to_import + ' new patients and update ' + n_to_update + ' existing patients. Type y to continue: ')[0] == 'y':
+def import_patients(bot, patients, patient_ids, study, progress_callback):
     count = 0
     start_time = time.time()
+
     for patient in patients:
         if patient_ids.get(patient.get('external_id')):
             bot.set(patient_ids[patient['external_id']], patient)
         else:
             bot.create(patient, study)
         count += 1
-        stdout.write(str(count) + '\r')
-    print('All done! Elapsed time ' + str(timedelta(seconds=time.time() - start_time)))
+        progress_callback(count)
+
+    return timedelta(seconds=time.time() - start_time)
+
+if __name__ == '__main__':
+
+    #parse arguments
+
+    if len(sys.argv) < 2:
+        print('You must specify the file to import on the command line.')
+        exit(1)
+
+    base_url = None
+    username = None
+    password = None
+    study = None
+    yes = False
+
+    optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study=', 'yes'])
+    for name, value in optlist:
+        if name == '--base-url':
+            base_url = value
+        elif name == '--username':
+            username = value
+        elif name == '--password':
+            password = value
+        elif name == '--study':
+            study = value
+        elif name in ('-y', '--yes'):
+            yes = True
+
+    #parse CSV file
+    patients = parse_csv_file(
+        args[0],
+        lambda column: print('WARNING: Ignoring unrecognized column "' + column + '"'),
+        lambda value, field: print('WARNING: Ignoring unrecognized value "' + value + '" for "' + field + '"')
+    )
+
+    #get any missing arguments and initialize the bot
+
+    if not base_url:
+        base_url = input('Input the URL (blank for http://localhost:8080): ')
+    if not base_url:
+        base_url = 'http://localhost:8080'
+    if not base_url.startswith('http://') and not base_url.startswith('https://'):
+        base_url = 'http://' + base_url
+    base_url = base_url.rstrip('/')
+
+    if not username:
+        username = input('Input your username (blank for Admin): ')
+    if not username:
+        username = 'Admin'
+
+    if not password:
+        password = getpass('Input your password (blank for admin): ')
+    if not password:
+        password = 'admin'
+
+    bot = PhenoTipsBot(base_url, username, password)
+
+    if study == None:
+        studies = bot.list_studies()
+        if len(studies):
+            study = input('Input the study form to use (blank for default): ')
+    elif study == 'None':
+        study = None
+
+    #check external IDs
+
+    print('Checking ' + str(len(patients)) + ' external IDs...')
+
+    patient_ids = get_patient_ids(bot, patients, lambda count: stdout.write(str(count) + '\r'))
+
+    #begin import
+
+    n_to_import = str(len(patients) - len(patient_ids))
+    n_to_update = str(len(patient_ids))
+
+    if yes or input('You are about to import ' + n_to_import + ' new patients and update ' + n_to_update + ' existing patients. Type y to continue: ')[0] == 'y':
+        elapsed_time = import_patients(bot, patients, patient_ids, study, lambda count: stdout.write(str(count) + '\r'))
+        print('All done! Elapsed time ' + str(elapsed_time))
