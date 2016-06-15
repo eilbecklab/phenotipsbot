@@ -156,17 +156,20 @@ if not password:
 if not password:
     password = 'admin'
 
+bot = PhenoTipsBot(base_url, username, password)
+
 if study == None:
-    study = input('Are there any custom study forms (blank for no)? ')
-    if study and study[0] == 'y':
+    studies = bot.list_studies()
+    if len(studies):
+        print('Available study forms:')
+        print('* ' + '\n* '.join(studies))
         study = input('Input the study form to use (blank for default): ')
-    else:
-        study = None
+elif study == 'None':
+    study = None
 
 #begin import
 
 if yes or input('You are about to import ' + str(len(patients)) + ' patients. Type y to continue: ')[0] == 'y':
-    bot = PhenoTipsBot(base_url, username, password)
     count = 0
     start_time = time.time()
     for patient, clinvar_variants in patients:

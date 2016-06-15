@@ -251,6 +251,8 @@ if __name__ == '__main__':
     if study == None:
         studies = bot.list_studies()
         if len(studies):
+            print('Available study forms:')
+            print('* ' + '\n* '.join(studies))
             study = input('Input the study form to use (blank for default): ')
     elif study == 'None':
         study = None

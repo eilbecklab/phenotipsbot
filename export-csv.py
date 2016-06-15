@@ -102,14 +102,18 @@ if __name__ == '__main__':
 
     bot = PhenoTipsBot(base_url, username, password)
 
-    if study == None and len(bot.list_studies()):
-        sys.stderr.write('Are you exporting from a particular study (blank for no)? ')
-        study = input()
-        if study and study[0] == 'y':
-            sys.stderr.write('Input the study to export from (blank for default): ')
+    if study == None:
+        studies = bot.list_studies()
+        if len(studies):
+            print('Available studies:')
+            print('* ' + '\n* '.join(studies))
+            sys.stderr.write('Are you exporting from a particular study (blank for no)? ')
             study = input()
-        else:
-            study = None
+            if study and study[0] == 'y':
+                sys.stderr.write('Input the study to export from (blank for default): ')
+                study = input()
+            else:
+                study = None
     elif study == 'None':
         study = None
 
