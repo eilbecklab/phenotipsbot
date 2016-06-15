@@ -394,7 +394,7 @@ Returns a patient object corresponding to the patient with the specified ID.
 
 #### get_id(external_id):
 Translates an external ID to a patient ID. If no patient has the external ID,
-returns None.
+returns None. If multiple patients have the external ID, returns a list.
 
 #### get_object(patient_id, object_class, object_num)
 Returns an arbitrary object on a patient page.

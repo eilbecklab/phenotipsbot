@@ -93,7 +93,15 @@ class PhenoTipsBot:
         if r.status_code == 404:
             return None
         r.raise_for_status()
-        return json.loads(r.text)['id']
+        content_type = r.headers['content-type'].split(';')[0]
+        if content_type == 'application/json':
+            return json.loads(r.text)['id']
+        elif content_type == 'application/xml':
+            root = ElementTree.fromstring(r.text)
+            id_elements = root.findall('./{http://www.xwiki.org}alternatives/{http://www.xwiki.org}patient/{http://www.xwiki.org}id')
+            return list(map(lambda el: el.text, id_elements))
+        else:
+            raise TypeError('Expected JSON or XML')
 
     def get_object(self, patient_id, object_class, object_num):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/' + object_class + '/' + object_num
