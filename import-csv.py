@@ -149,6 +149,10 @@ def parse_csv_file(file_name, unrecognized_column_callback, unrecognized_value_c
                 j += 1
             continue
 
+        #skip empty rows
+        if len(row) == 0:
+            continue
+
         patient = dict()
 
         for field in column_map:
