@@ -123,17 +123,36 @@ class MainWindow(QMainWindow):
             self.asyncAddStudySelectorItem('Default study')
             for study in self.studies:
                 self.asyncAddStudySelectorItem(study)
-        if len(self.gene_table):
-            self.asyncResetGeneSelector()
-            for gene in self.gene_table:
-                self.asyncAddGeneSelectorItem(gene)
-        else:
+        if self.operation == IMPORT_CSV:
             self.asyncHideGeneSelector()
-        if len(self.studies) or len(genes):
-            self.asyncSetPage(2)
+            if len(self.studies):
+                self.asyncSetPage(2)
+            else:
+                self.study = None
+                self.turnToPage3()
+            self.asyncUnlockUi()
+        elif self.operation == EXPORT_CSV:
+            self.asyncHideGeneSelector()
+            if len(self.studies) > 1:
+                self.asyncSetPage(2)
+            else:
+                self.study = None
+                self.turnToPage3()
+            self.asyncUnlockUi()
         else:
-            self.turnToPage3()
-        self.asyncUnlockUi()
+            if len(self.gene_table):
+                self.asyncResetGeneSelector()
+                for gene in self.gene_table:
+                    self.asyncAddGeneSelectorItem(gene)
+                if len(self.studies) or len(self.gene_table) > 1:
+                    self.asyncSetPage(2)
+                else:
+                    self.study = None
+                    self.gene = None
+                    self.asyncTurnToPage3()
+                self.asyncUnlockUi()
+            else:
+                self.asyncUnlockUi('There are no variants for ClinVar on this site.')
 
     def turnToPage3(self):
         if self.operation == IMPORT_CSV:
