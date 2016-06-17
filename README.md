@@ -50,12 +50,25 @@ instead of on the production server. To do so:
 ## Dependencies
 PhenoTipsBot depends on the
 [Python Selenium bindings](https://selenium-python.readthedocs.org/), the
-[Python requests library](http://docs.python-requests.org/en/latest/), and
-[PhantomJS](http://phantomjs.org/), but these can be easily installed with:
-* `sudo apt-get install python-selenium`, `sudo pacman -S python-selenium`,
-  or `sudo pip install selenium`
-* `sudo pip install requests`
-* `sudo apt-get install phantomjs` or `sudo pacman -S phantomjs`
+[Python requests library](http://docs.python-requests.org/en/latest/), the
+[Python dateutil library](https://dateutil.readthedocs.io/en/stable/), and
+[PhantomJS](http://phantomjs.org/). To use the GUI you must also install
+[PyQt5](https://riverbankcomputing.com/software/pyqt/intro).
+
+Installation of these packages is different depending on your platform.
+* **Ubuntu**:
+  `sudo apt-get install python3-selenium python3-requests python3-dateutil phantomjs python3-pyqt5`
+* **Arch**:
+  `sudo pacman -S python-selenium python-requests python-dateutil phantomjs python-pyqt5`
+* **Mac**: `pip install selenium requests python-dateutil pyqt5`, then
+  [download PhantomJS](http://phantomjs.org/download.html#mac-os-x), extract the
+  phantomjs file from the bin directory, and save it in the same directory as
+  phenotipsbot.py.
+* **Windows**: [Install Python](https://www.python.org/downloads/windows/), run
+  `pip install selenium requests python-dateutil pyqt5`, then
+  [download PhantomJS](http://phantomjs.org/download.html#mac-os-x), extract the
+  phantomjs.exe file from the bin directory, and save it in the same directory
+  as phenotipsbot.py.
 
 ## Sample programs
 ### [import-csv.py](import-csv.py)
