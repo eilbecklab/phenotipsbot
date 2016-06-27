@@ -406,6 +406,9 @@ represents the pedigree data. id_generation can be 'external', 'newid', or
 #### get(patient_id)
 Returns a patient object corresponding to the patient with the specified ID.
 
+#### get_file(patient_id, filename)
+Returns the binary contents of a file attached to a patient.
+
 #### get_id(external_id):
 Translates an external ID to a patient ID. If no patient has the external ID,
 returns None. If multiple patients have the external ID, returns a list.

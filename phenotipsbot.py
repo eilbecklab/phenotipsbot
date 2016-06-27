@@ -87,6 +87,12 @@ class PhenoTipsBot:
     def get(self, patient_id):
         return self.get_object(patient_id, 'PhenoTips.PatientClass', '0')
 
+    def get_file(self, patient_id, filename):
+        url = self.base + '/bin/download/data/' + patient_id + '/' + filename
+        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
+        r.raise_for_status()
+        return r.content
+
     def get_id(self, external_id):
         url = self.base + '/rest/patients/eid/' + external_id
         r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
