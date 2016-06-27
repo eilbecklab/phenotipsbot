@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-from operator import iconcat
 from phenotipsbot import PhenoTipsBot
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSlot
@@ -164,15 +163,20 @@ class MainWindow(QMainWindow):
         self.asyncSetPage(3)
 
     def turnToPage4(self):
+        global confirmation
         self.asyncLockUi('Parsing CSV file...')
         confirmation = ''
 
         try:
-            self.patients = parse_csv_file(
-                self.path,
-                lambda column: iconcat(confirmation, 'WARNING: Ignoring unrecognized column "' + column + '\n"'),
-                lambda value, field: iconcat(confirmation, 'WARNING: Ignoring unrecognized value "' + value + '" for "' + field + '"\n')
-            )
+            def unrecognizedColumnHandler(column):
+                global confirmation
+                confirmation += 'WARNING: Ignoring unrecognized column "' + column + '"\n'
+            def unrecognizedValueHandler(value, field):
+                global confirmation
+                confirmation += 'WARNING: Ignoring unrecognized value "' + value + '" for "' + field + '"\n'
+
+            self.patients = parse_csv_file(self.path, unrecognizedColumnHandler, unrecognizedValueHandler)
+
             self.asyncSetStatus('Checking ' + str(len(self.patients)) + ' external IDs...', len(self.patients))
             self.patient_ids = get_patient_ids(self.bot, self.patients, self.asyncSetProgress)
             self.n_to_import = str(len(self.patients) - len(self.patient_ids))
