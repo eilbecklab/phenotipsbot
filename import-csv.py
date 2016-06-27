@@ -74,6 +74,8 @@ KNOWN_FIELDS = {
     'solved__pubmed_id'                    : 'String',
     'solved__gene_id'                      : 'String',
     'date_of_death'                        : 'Date',
+    'date_of_death_entered'                : 'String',
+    'date_of_birth_entered'                : 'String',
     'solved__notes'                        : 'String',
     'assistedReproduction_donoregg'        : 'Boolean',
     'date_of_death_unknown'                : 'Boolean',
@@ -91,6 +93,7 @@ KNOWN_FIELDS = {
     'subject_data_relationship'            : 'String',
     'investigator'                         : 'String',
     'home_zip_code'                        : 'Integer',
+    'case_or_control'                      : 'Static List',
     #IBD
     'age_at_diagnosis'                     : 'Float',
     'age_at_enrollment'                    : 'Float',
