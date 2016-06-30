@@ -31,6 +31,7 @@ class MainWindow(QMainWindow):
         self.progressBar.setVisible(False)
         self.previousButton.clicked.connect(self.previousButton_clicked)
         self.nextButton.clicked.connect(self.nextButton_clicked)
+        self.siteSelector.lineEdit().returnPressed.connect(self.nextButton_clicked)
         self.usernameTextbox.returnPressed.connect(self.nextButton_clicked)
         self.passwordTextbox.returnPressed.connect(self.nextButton_clicked)
         self.importCsvOption.clicked.connect(self.operationOption_clicked)
