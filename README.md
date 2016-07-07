@@ -397,6 +397,10 @@ Deletes an arbitrary object from a patient page.
 #### delete_relative(patient_id, relative_num)
 Deletes a relative relationship.
 
+#### download_file(patient_id, filename, outpath)
+Saves a file directly to disk. If you need to examine the file contents, use
+[get_file](#get_filepatient_id-filename) instead.
+
 #### export_pedigree_ped(patient_id, id_generation='external')
 Returns a string in
 [PED](http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#ped) format that
@@ -407,7 +411,8 @@ represents the pedigree data. id_generation can be 'external', 'newid', or
 Returns a patient object corresponding to the patient with the specified ID.
 
 #### get_file(patient_id, filename)
-Returns the binary contents of a file attached to a patient.
+Returns the binary contents of a file attached to a patient. See also
+[download_file](#download_filepatient_id-filename-outpath).
 
 #### get_id(external_id):
 Translates an external ID to a patient ID. If no patient has the external ID,
@@ -456,7 +461,8 @@ Only properties that exist in both the patient object and on the server are
 updated.
 
 #### set_file(patient_id, filename, contents)
-Uploads and attaches a binary file to a patient.
+Uploads and attaches a binary file to a patient. See also
+[upload_file](#upload_filepatient_id-filepath).
 
 #### set_object(patient_id, object_class, object_obj)
 Updates the properties of an object. Only properties that exist in both
@@ -473,6 +479,11 @@ Sets the relative's name and relationship. The relative must already exist.
 Sets the patient's study form. Pass `study=''` for the default study form, or
 `study=None` for the default study form and no study link. 'xwiki:Studies.' is
 automatically prepended to the study name.
+
+#### upload_file(patient_id, filepath)
+Uploads a file from disk and attaches it to a patient. The file's name on disk
+becomes the file's name in PhenoTips. If you need to upload a file from memory,
+use [set_file](#set_filepatient_id-filename-contents) instead.
 
 ### ApgarType
 * ApgarType.unknown

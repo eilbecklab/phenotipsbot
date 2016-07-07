@@ -21,6 +21,7 @@
 import json
 import requests
 from base64 import b64encode
+from os.path import basename
 from selenium import webdriver
 from xml.etree import ElementTree
 
@@ -76,6 +77,11 @@ class PhenoTipsBot:
 
     def delete_relative(self, patient_id, relative_num):
         self.delete_object(patient_id, 'PhenoTips.RelativeClass', relative_num)
+
+    def download_file(self, patient_id, filename, outpath):
+        fd = open(outpath, "wb")
+        fd.write(self.get_file(patient_id, filename))
+        fd.close()
 
     def export_pedigree_ped(self, patient_id, id_generation='external'):
         self.init_phantom()
@@ -253,6 +259,11 @@ class PhenoTipsBot:
                 data = {'property#studyReference': 'xwiki:Studies.' + study}
                 r = requests.put(url, auth=self.auth, data=data, verify=self.ssl_verify)
                 r.raise_for_status()
+
+    def upload_file(self, patient_id, filepath):
+        fd = open(filepath, "rb")
+        self.set_file(patient_id, basename(filepath), fd.read())
+        fd.close()
 
 class ApgarType:
     unknown = 'unknown'
