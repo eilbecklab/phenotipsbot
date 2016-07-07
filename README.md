@@ -455,6 +455,9 @@ Updates the properties of the patient from the values in the patient object.
 Only properties that exist in both the patient object and on the server are
 updated.
 
+#### set_file(patient_id, filename, contents)
+Uploads and attaches a binary file to a patient.
+
 #### set_object(patient_id, object_class, object_obj)
 Updates the properties of an object. Only properties that exist in both
 object_obj and on the server are updated.

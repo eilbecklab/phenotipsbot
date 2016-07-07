@@ -209,6 +209,11 @@ class PhenoTipsBot:
     def set(self, patient_id, patient_obj):
         self.set_object(patient_id, 'PhenoTips.PatientClass', '0', patient_obj)
 
+    def set_file(self, patient_id, filename, contents):
+        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/attachments/' + filename
+        r = requests.put(url, auth=self.auth, data=contents, verify=self.ssl_verify)
+        r.raise_for_status()
+
     def set_object(self, patient_id, object_class, object_num, object_obj):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/' + object_class + '/' + object_num
         data = {}
