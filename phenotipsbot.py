@@ -125,6 +125,9 @@ class PhenoTipsBot:
             ret[prop.attrib['name']] = prop.find('{http://www.xwiki.org}value').text
         return ret
 
+    def get_owner(self, patient_id):
+        return self.get_object(patient_id, 'PhenoTips.OwnerClass', '0')['owner'][len('xwiki:XWiki.'):]
+
     def get_pedigree(self, patient_id):
         return json.loads(self.get_object(patient_id, 'PhenoTips.PedigreeClass', '0')['data'])
 
@@ -227,6 +230,9 @@ class PhenoTipsBot:
             data['property#' + key] = value
         r = requests.put(url, auth=self.auth, data=data, verify=self.ssl_verify)
         r.raise_for_status()
+
+    def set_owner(self, patient_id, username):
+        return self.set_object(patient_id, 'PhenoTips.OwnerClass', '0', {'owner': 'xwiki:XWiki.' + username})
 
     def set_pedigree(self, patient_id, pedigree_obj):
         #the SVG is not automatically updated if the JSON is changed via the REST API
