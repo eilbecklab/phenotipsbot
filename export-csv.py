@@ -105,11 +105,11 @@ if __name__ == '__main__':
     if study == None:
         studies = bot.list_studies()
         if len(studies):
-            print('Available studies:')
-            print('* ' + '\n* '.join(studies))
             sys.stderr.write('Are you exporting from a particular study (blank for no)? ')
             study = input()
             if study and study[0] == 'y':
+                print('Available studies:')
+                print('* ' + '\n* '.join(studies))
                 sys.stderr.write('Input the study to export from (blank for default): ')
                 study = input()
             else:
@@ -127,5 +127,5 @@ if __name__ == '__main__':
     n_exported, elapsed_time = export_patients(bot, patient_ids, study, stdout, lambda count: stderr.write(str(count) + '\r'))
 
     stderr.write('\n')
-    stderr.write('Exported ' + n_exported + ' patients.')
-    stderr.write('Elapsed time ' + str(timedelta(seconds=time.time() - start_time)) + '\n')
+    stderr.write('Exported ' + str(n_exported) + ' patients.\n')
+    stderr.write('Elapsed time ' + str(elapsed_time) + '\n')
