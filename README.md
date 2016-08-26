@@ -28,6 +28,7 @@ PatientClass. PhenoTips 1.2.2 or later is required.
     * [import-ped.py](#import-pedpy)
     * [export-ped.py](#export-pedpy)
     * [export-clinvar.py](#export-clinvarpy)
+    * [user-stats.py](#user-statspy)
 * [Framework reference](#framework-reference)
     * [PhenoTipsBot](#phenotipsbot-1)
     * [ApgarType](#apgartype)
@@ -369,6 +370,53 @@ corresponding to the Variant tab and the CaseData tab of the official
 [ClinVar full submission spreadsheet]
 (ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/submission_templates/SubmissionTemplate.xlsx).
 Variant.csv contains aggregate data and CaseData.csv contains case-level data.
+
+### [user-stats.py](user-stats.py)
+#### Synopsis
+```
+./user-stats.py [--base-url=<value>] [--username=<value>] [--password=<value>]
+                [<user-to-summarize>]
+```
+
+#### Description
+For a given user, prints the number of patient records that that user owns, the
+average number of positive and phenotypes per patient, and the list of fields
+that have been used at least once in the set of owned patients.
+
+#### Options
+* `--base-url`
+    * The location of the PhenoTips site, for example `http://localhost:8080`.
+    * The script will prompt for this value if it is not provided on the command
+      line.
+* `--username`
+    * The username to use to access the PhenoTips site.
+    * The script will prompt for this value if it is not provided on the command
+      line.
+* `--password`
+    * The password to use to access the PhenoTips site.
+    * The script will prompt for this value if it is not provided on the command
+      line.
+* `<user-to-summarize>`
+    * The username of the user that is being investigated.
+    * The script will prompt for this value if it is not provided on the command
+      line.
+
+#### Example
+To get statistics for a user:
+
+```
+$ ./user-stats.py
+Input the URL (blank for http://localhost:8080): 
+Input your username (blank for Admin): 
+Input your password (blank for admin): 
+Input the user to see stats for (blank for all users): NapoleanDynamite
+Looking through 1012 patient records...
+
+Owned patients: 52
+Average positive phenotypes per patient: 3.769230769230769
+Average negative phenotypes per patient: 0.0
+Fields used at least once: 45, ['affectedRelatives', 'apgar1', 'apgar5', 'assistedReproduction_donoregg', 'assistedReproduction_donorsperm', 'assistedReproduction_fertilityMeds', 'assistedReproduction_iui', 'assistedReproduction_surrogacy', 'case_or_control', 'consanguinity', 'consent_signed_date', 'date_of_birth', 'date_of_birth_entered', 'date_of_death', 'date_of_death_entered', 'date_of_death_unknown', 'diagnosis_notes', 'enrollment_date', 'extended_phenotype', 'extended_prenatal_phenotype', 'external_id', 'first_name', 'gender', 'gestation', 'home_zip_code', 'icsi', 'identifier', 'indication_for_referral', 'investigator', 'ivf', 'kindred_id', 'lab_id', 'last_name', 'maternal_ethnicity', 'miscarriages', 'multipleGestation', 'negative_prenatal_phenotype', 'omim_id', 'paternal_ethnicity', 'phenotype', 'prenatal_phenotype', 'proband', 'solved', 'subject_data_relationship', 'unaffected']
+```
 
 ## Framework reference
 ### PhenoTipsBot
