@@ -74,8 +74,8 @@ Installation of these packages is different depending on your platform.
 ### [import-csv.py](import-csv.py)
 #### Synopsis
 ```
-./import-csv [--base-url=<value>] [--username=<value>] [--password=<value>]
-             [--study=(<value> | None)] [-y | --yes] <file>
+./import-csv.py [--base-url=<value>] [--username=<value>] [--password=<value>]
+                [--study=(<value> | None)] [-y | --yes] <file>
 ```
 
 #### Description
@@ -142,8 +142,8 @@ All done! Elapsed time 0:00:06.643825
 ### [export-csv.py](export-csv.py)
 #### Synopsis
 ```
-./export-csv [--base-url=<value>] [--username=<value>] [--password=<value>]
-             [--study=(<value> | None)]
+./export-csv.py [--base-url=<value>] [--username=<value>] [--password=<value>]
+                [--study=(<value> | None)]
 ```
 
 #### Description
@@ -199,8 +199,8 @@ P0000003,mmi:1003,,,,,F,,,,,1,,,,,,,,0,,,,,,,,,Cardio-facio-cutaneous syndrome,,
 ### [import-ped.py](import-ped.py)
 #### Synopsis
 ```
-./import-ped [--base-url=<value>] [--username=<value>] [--password=<value>]
-             [-y | --yes] <file>
+./import-ped.py [--base-url=<value>] [--username=<value>] [--password=<value>]
+                [-y | --yes] <file>
 ```
 
 #### Description
@@ -254,8 +254,8 @@ All done! Elapsed time 0:00:01.418184
 ### [export-ped.py](export-ped.py)
 #### Synopsis
 ```
-./export-csv [--base-url=<value>] [--username=<value>] [--password=<value>]
-             [--study=(<value> | None)]
+./export-csv.py [--base-url=<value>] [--username=<value>] [--password=<value>]
+                [--study=(<value> | None)]
 ```
 
 #### Description
@@ -316,8 +316,8 @@ After running this command, pedigree.ped contains:
 ### [export-clinvar.py](export-clinvar.py)
 #### Synopsis
 ```
-./export-clinvar [--base-url=<value>] [--username=<value>] [--password=<value>]
-                 [--study=(<value> | None)]
+./export-clinvar.py [--base-url=<value>] [--username=<value>]
+                    [--password=<value>] [--study=(<value> | None)]
 ```
 
 #### Description
