@@ -447,6 +447,9 @@ Creates a relative relationship on a patient page and returns its relative
 relationship object number. Properties in `relative_obj` that are not in
 `PhenoTips.RelativeClass` on the server are discarded.
 
+#### create_vcf(patient_id, vcf_obj)
+Creates a VCF object on a patient page and returns its VCF object number.
+
 #### delete(patient_id)
 Deletes a patient page.
 
@@ -461,6 +464,9 @@ Deletes an arbitrary object from a patient page.
 
 #### delete_relative(patient_id, relative_num)
 Deletes a relative relationship object from a patient page.
+
+#### delete_vcf(patient_id, vcf_num)
+Deletes a VCF object from a patient page.
 
 #### download_file(patient_id, filename, outpath)
 Saves a file directly to disk. If you need to examine the file contents, use
@@ -509,6 +515,9 @@ removed from the study name. If the patient does not have a StudyBindingClass
 the patient does have a StudyBindingClass but it's set to the default study
 form, this function returns an empty string.
 
+#### get_vcf(patient_id, vcf_num)
+Returns a VCF object on a patient page.
+
 #### import_pedigree_ped(patient_id, pedigree_str, mark_evaluated=False, external_id_mark=True, accept_unknown_phenotypes=True)
 Replaces the pedigree with one created from the specified
 [PED](http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#ped) string.
@@ -533,6 +542,9 @@ the patient page.
 
 #### list_studies()
 Returns a list of the custom study forms defined on the server.
+
+#### list_vcfs()
+Returns a list of the numbers of the VCF objects attached to the patient page.
 
 #### set(patient_id, patient_obj)
 Updates the properties of the patient from the values in the patient object.
@@ -571,6 +583,10 @@ updated. The referenced relative should already exist in PhenoTips.
 Sets the patient's study form. Pass `study=''` for the default study form, or
 `study=None` for the default study form and no study link. 'xwiki:Studies.' is
 automatically prepended to the study name.
+
+#### set_vcf(patient_id, vcf_num, vcf_obj)
+Updates the properties of a VCF object. Only properties that exist in both
+vcf_obj and on the server are updated.
 
 #### upload_file(patient_id, filepath)
 Uploads a file from disk and attaches it to a patient. The file's name on disk

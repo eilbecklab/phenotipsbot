@@ -73,6 +73,9 @@ class PhenoTipsBot:
     def create_relative(self, patient_id, relative_obj):
         return self.create_object(patient_id, 'PhenoTips.RelativeClass', relative_obj)
 
+    def create_vcf(self, patient_id, vcf_obj):
+        return self.create_object(patient_id, 'PhenoTips.VCF', vcf_obj)
+
     def delete(self, patient_id):
         r = requests.delete(self.base + '/rest/patients/' + patient_id, auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
@@ -92,6 +95,9 @@ class PhenoTipsBot:
 
     def delete_relative(self, patient_id, relative_num):
         self.delete_object(patient_id, 'PhenoTips.RelativeClass', relative_num)
+
+    def delete_vcf(self, patient_id, vcf_num):
+        self.delete_object(patient_id, 'PhenoTips.VCF', vcf_num)
 
     def download_file(self, patient_id, filename, outpath):
         fd = open(outpath, "wb")
@@ -168,6 +174,9 @@ class PhenoTipsBot:
             else:
                 return el.text[len('xwiki:Studies.'):]
 
+    def get_vcf(self, patient_id, vcf_num):
+        return self.get_object(patient_id, 'PhenoTips.VCF', vcf_num)
+
     def import_pedigree_ped(self, patient_id, pedigree_str, mark_evaluated=False, external_id_mark=True, accept_unknown_phenotypes=True):
         self.init_phantom()
         url = self.base + '/bin/' + patient_id + '?sheet=PhenoTips.PedigreeEditor'
@@ -234,6 +243,9 @@ class PhenoTipsBot:
         name_elements = root.findall('./{http://www.xwiki.org}pageSummary/{http://www.xwiki.org}name')
         return list(filter(lambda study: study not in ('WebHome', 'WebPreferences'), map(lambda el: el.text, name_elements)))
 
+    def list_vcfs(self, patient_id):
+        return self.list_objects(patient_id, 'PhenoTips.VCF')
+
     def set(self, patient_id, patient_obj):
         self.set_object(patient_id, 'PhenoTips.PatientClass', '0', patient_obj)
 
@@ -290,6 +302,9 @@ class PhenoTipsBot:
                 data = {'property#studyReference': 'xwiki:Studies.' + study}
                 r = requests.put(url, auth=self.auth, data=data, verify=self.ssl_verify)
                 r.raise_for_status()
+
+    def set_vcf(self, patient_id, vcf_num, vcf_obj):
+        self.set_object(patient_id, 'PhenoTips.VCF', vcf_num, vcf_obj)
 
     def upload_file(self, patient_id, filepath):
         fd = open(filepath, "rb")
