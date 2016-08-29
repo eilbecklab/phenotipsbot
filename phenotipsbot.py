@@ -80,6 +80,11 @@ class PhenoTipsBot:
     def delete_collaborator(self, patient_id, collaborator_num):
         self.delete_object(patient_id, 'PhenoTips.CollaboratorClass', collaborator_num)
 
+    def delete_file(self, patient_id, filename):
+        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/attachments/' + filename
+        r = requests.delete(url, auth=self.auth, verify=self.ssl_verify)
+        r.raise_for_status()
+
     def delete_object(self, patient_id, object_class, object_num):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/' + object_class + '/' + relative_num
         r = requests.delete(url, auth=self.auth, verify=self.ssl_verify)

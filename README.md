@@ -446,6 +446,9 @@ Deletes a patient page.
 #### delete_collaborator(patient_id, collaborator_num)
 Deletes a collaborator object from a patient page.
 
+#### delete_file(patient_id, filename)
+Deletes a file attached to a patient.
+
 #### delete_object(patient_id, object_class, object_num)
 Deletes an arbitrary object from a patient page.
 
