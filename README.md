@@ -484,7 +484,8 @@ returns None. If multiple patients have the external ID, returns a list.
 Returns an arbitrary object on a patient page.
 
 #### get_owner(patient_id)
-Returns the name of the PhenoTips user that owns patient record.
+Returns the name of the PhenoTips user that owns patient record. 'xwiki:XWiki.'
+is automatically removed from the owner's username.
 
 #### get_pedigree(patient_id)
 Returns the patient's pedigree, which is displayed to the user as an SVG image,
@@ -542,8 +543,9 @@ Updates the properties of an object. Only properties that exist in both
 object_obj and on the server are updated.
 
 #### set_owner(patient_id, username)
-Sets the owner of the patient record to a PhenoTips user. Does not check that
-the user exists.
+Sets the owner of the patient record to a PhenoTips user. 'xwiki:XWiki.' is
+automatically added to the username. This function does not verify that the user
+exists.
 
 #### set_pedigree(patient_id, pedigree_obj)
 Sets the patient's pedigree data and updates the SVG image that is shown to the
