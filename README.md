@@ -427,18 +427,25 @@ server will be logged under the provided username.
 
 #### create(patient_obj, study, pedigree)
 Creates a new patient page and returns the patient ID (e.g. 'P000123'). If
-patient_obj, study, or pedigree is given, set, set_study, or set_pedigree is
-also called.
+`patient_obj`, `study`, or `pedigree` is given,
+[set](#setpatient_id-patient_obj), [set_study](#set_studypatient_id-study), or
+[set_pedigree](#set_pedigreepatient_id-pedigree_obj) is also called.
 
 #### create_collaborator(patient_id, collaborator_obj)
 Creates a collaborator object on a patient page and returns its collaborator
-number. 'xwiki:XWiki.' is automatically added to the collaborator's username.
+object number. Properties in `collaborator_obj` that are not in
+`PhenoTips.CollaboratorClass` on the server are discarded. 'xwiki:XWiki.' is
+automatically prepended to the collaborator's username.
 
 #### create_object(patient_id, object_class, object_obj)
 Creates an arbitrary object on a patient page and returns its object number.
+Properties in `object_obj` that are not in the class on the server are
+discarded.
 
 #### create_relative(patient_id, relative_obj)
-Creates a new relative relationship and returns the relative number.
+Creates a relative relationship on a patient page and returns its relative
+relationship object number. Properties in `relative_obj` that are not in
+`PhenoTips.RelativeClass` on the server are discarded.
 
 #### delete(patient_id)
 Deletes a patient page.
@@ -453,7 +460,7 @@ Deletes a file attached to a patient.
 Deletes an arbitrary object from a patient page.
 
 #### delete_relative(patient_id, relative_num)
-Deletes a relative relationship.
+Deletes a relative relationship object from a patient page.
 
 #### download_file(patient_id, filename, outpath)
 Saves a file directly to disk. If you need to examine the file contents, use
@@ -470,7 +477,8 @@ Returns a patient object corresponding to the patient with the specified ID.
 
 #### get_collaborator(patient_id, collaborator_num)
 Returns a collaborator object on a patient page. 'xwiki:XWiki.' is automatically
-removed from the collaborator's username.
+removed from the `collaborator` property, which contains the collaborator's
+username.
 
 #### get_file(patient_id, filename)
 Returns the binary contents of a file attached to a patient. See also
@@ -492,7 +500,7 @@ Returns the patient's pedigree, which is displayed to the user as an SVG image,
 as an object deserialized from the internal JSON representation.
 
 #### get_relative(patient_id, relative_num)
-Returns the patient's relative with the specified number.
+Returns a relative relationship object on a patient page.
 
 #### get_study(patient_id)
 Returns the name of the patient's study form. 'xwiki:Studies.' is automatically
@@ -520,19 +528,22 @@ attached to the patient page.
 Returns a list of the possible property names that a patient object can have.
 
 #### list_relatives(patient_id)
-Returns a list of the numbers of the relatives attached to the patient page.
+Returns a list of the numbers of the relative relationship objects attached to
+the patient page.
 
 #### list_studies()
 Returns a list of the custom study forms defined on the server.
 
 #### set(patient_id, patient_obj)
 Updates the properties of the patient from the values in the patient object.
-Only properties that exist in both the patient object and on the server are
-updated.
+Only properties that exist in both `patient_obj` and `PhenoTips.PatientClass`
+on the server are updated.
 
 #### set_collaborator(patient_id, collaborator_num, collaborator_obj)
-Sets the collaborator's name and level of access. 'xwiki:XWiki.' is
-automatically added to the collaborator's username.
+Updates the properties of a collaborator object. Only properties that exist in
+both collaborator_obj and `PhenoTips.CollaboratorClass` on the server are
+updated. 'xwiki:XWiki.' is automatically prepended to the `collaborator`
+property, which contains the collaborator's username.
 
 #### set_file(patient_id, filename, contents)
 Uploads and attaches a binary file to a patient. See also
@@ -540,19 +551,21 @@ Uploads and attaches a binary file to a patient. See also
 
 #### set_object(patient_id, object_class, object_obj)
 Updates the properties of an object. Only properties that exist in both
-object_obj and on the server are updated.
+`object_obj` and in the class on the server are updated.
 
 #### set_owner(patient_id, username)
 Sets the owner of the patient record to a PhenoTips user. 'xwiki:XWiki.' is
-automatically added to the username. This function does not verify that the user
-exists.
+automatically prepended to the username. This function does not verify that the
+user exists.
 
 #### set_pedigree(patient_id, pedigree_obj)
 Sets the patient's pedigree data and updates the SVG image that is shown to the
 user.
 
 #### set_relative(patient_id, relative_num, relative_obj)
-Sets the relative's name and relationship. The relative must already exist.
+Updates the properties of a relative relationship object. Only properties that
+exist in both `relative_obj` and in `PhenoTips.RelativeClass` on the server are
+updated. The referenced relative should already exist in PhenoTips.
 
 #### set_study(patient_id, study)
 Sets the patient's study form. Pass `study=''` for the default study form, or
