@@ -21,6 +21,7 @@
 import json
 import requests
 from base64 import b64encode
+from copy import copy
 from os.path import basename
 from selenium import webdriver
 from xml.etree import ElementTree
@@ -52,6 +53,12 @@ class PhenoTipsBot:
         r.raise_for_status()
         return patient_id
 
+    def create_collaborator(self, patient_id, collaborator_obj):
+        if 'collaborator' in collaborator_obj:
+            collaborator_obj = copy(collaborator_obj)
+            collaborator_obj['collaborator'] = 'xwiki:XWiki.' + collaborator_obj['collaborator']
+        return self.create_object(self, patient_id, 'PhenoTips.CollaboratorClass', collaborator_obj)
+
     def create_object(self, patient_id, object_class, object_obj):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects'
         data = {'className': object_class}
@@ -69,6 +76,9 @@ class PhenoTipsBot:
     def delete(self, patient_id):
         r = requests.delete(self.base + '/rest/patients/' + patient_id, auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
+
+    def delete_collaborator(self, patient_id, collaborator_num):
+        self.delete_object(patient_id, 'PhenoTips.CollaboratorClass', collaborator_num)
 
     def delete_object(self, patient_id, object_class, object_num):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/' + object_class + '/' + relative_num
@@ -92,6 +102,11 @@ class PhenoTipsBot:
 
     def get(self, patient_id):
         return self.get_object(patient_id, 'PhenoTips.PatientClass', '0')
+
+    def get_collaborator(self, patient_id, collaborator_num):
+        ret = self.get_object(patient_id, 'PhenoTips.CollaboratorClass', collaborator_num)
+        ret['collaborator'] = ret['collaborator'][len('xwiki:XWiki.'):]
+        return ret
 
     def get_file(self, patient_id, filename):
         url = self.base + '/bin/download/data/' + patient_id + '/' + filename
@@ -179,6 +194,9 @@ class PhenoTipsBot:
         id_elements = root.findall('./{https://phenotips.org/}patientSummary/{https://phenotips.org/}id')
         return list(map(lambda el: el.text, id_elements))
 
+    def list_collaborators(self, patient_id):
+        return self.list_objects(patient_id, 'PhenoTips.CollaboratorClass')
+
     def list_objects(self, patient_id, object_class):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/' + object_class
         r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
@@ -210,6 +228,12 @@ class PhenoTipsBot:
 
     def set(self, patient_id, patient_obj):
         self.set_object(patient_id, 'PhenoTips.PatientClass', '0', patient_obj)
+
+    def set_collaborator(self, patient_id, collaborator_num, collaborator_obj):
+        if 'collaborator' in collaborator_obj:
+            collaborator_obj = copy(collaborator_obj)
+            collaborator_obj['collaborator'] = 'xwiki:XWiki.' + collaborator_obj['collaborator']
+        self.set_object(patient_id, 'PhenoTips.CollaboratorClass', collaborator_num, collaborator_obj)
 
     def set_file(self, patient_id, filename, contents):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/attachments/' + filename

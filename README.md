@@ -430,6 +430,10 @@ Creates a new patient page and returns the patient ID (e.g. 'P000123'). If
 patient_obj, study, or pedigree is given, set, set_study, or set_pedigree is
 also called.
 
+#### create_collaborator(patient_id, collaborator_obj)
+Creates a collaborator object on a patient page and returns its collaborator
+number. 'xwiki:XWiki.' is automatically added to the collaborator's username.
+
 #### create_object(patient_id, object_class, object_obj)
 Creates an arbitrary object on a patient page and returns its object number.
 
@@ -438,6 +442,9 @@ Creates a new relative relationship and returns the relative number.
 
 #### delete(patient_id)
 Deletes a patient page.
+
+#### delete_collaborator(patient_id, collaborator_num)
+Deletes a collaborator object from a patient page.
 
 #### delete_object(patient_id, object_class, object_num)
 Deletes an arbitrary object from a patient page.
@@ -457,6 +464,10 @@ represents the pedigree data. id_generation can be 'external', 'newid', or
 
 #### get(patient_id)
 Returns a patient object corresponding to the patient with the specified ID.
+
+#### get_collaborator(patient_id, collaborator_num)
+Returns a collaborator object on a patient page. 'xwiki:XWiki.' is automatically
+removed from the collaborator's username.
 
 #### get_file(patient_id, filename)
 Returns the binary contents of a file attached to a patient. See also
@@ -493,6 +504,10 @@ Replaces the pedigree with one created from the specified
 #### list()
 Returns a list of patient IDs on the server.
 
+#### list_collaborators(patient_id)
+Returns a list of the numbers of the collaborator objects attached to the
+patient page.
+
 #### list_objects(patient_id, object_class)
 Returns a list of the numbers of the objects of a particular class that are
 attached to the patient page.
@@ -510,6 +525,10 @@ Returns a list of the custom study forms defined on the server.
 Updates the properties of the patient from the values in the patient object.
 Only properties that exist in both the patient object and on the server are
 updated.
+
+#### set_collaborator(patient_id, collaborator_num, collaborator_obj)
+Sets the collaborator's name and level of access. 'xwiki:XWiki.' is
+automatically added to the collaborator's username.
 
 #### set_file(patient_id, filename, contents)
 Uploads and attaches a binary file to a patient. See also
