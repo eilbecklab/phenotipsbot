@@ -30,7 +30,7 @@ PatientClass. PhenoTips 1.2.2 or later is required.
     * [export-clinvar.py](#export-clinvarpy)
     * [user-stats.py](#user-statspy)
 * [Framework reference](#framework-reference)
-    * [PhenoTipsBot](#phenotipsbot-1)
+    * [PhenoTipsBot](#phenotipsbot)
     * [ApgarType](#apgartype)
     * [RelativeType](#relativetype)
     * [SexType](#sextype)
