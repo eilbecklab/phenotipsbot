@@ -132,14 +132,7 @@ class PhenoTipsBot:
         return json.loads(self.get_object(patient_id, 'PhenoTips.PedigreeClass', '0')['data'])
 
     def get_relative(self, patient_id, relative_num):
-        url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.RelativeClass/' + relative_num
-        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
-        r.raise_for_status()
-        root = ElementTree.fromstring(r.text)
-        ret = {}
-        ret['relative_of'] = root.find('./{http://www.xwiki.org}property[@name="relative_of"]/{http://www.xwiki.org}value').text
-        ret['relative_type'] = root.find('./{http://www.xwiki.org}property[@name="relative_type"]/{http://www.xwiki.org}value').text
-        return ret
+        return self.get_object(patient_id, 'PhenoTips.RelativeClass', relative_num)
 
     def get_study(self, patient_id):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/PhenoTips.StudyBindingClass/0'
