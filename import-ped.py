@@ -90,7 +90,7 @@ print('Matching pedigree rows to the patient database...')
 count = 0
 
 reader = csv.reader(open(args[0], 'r'), delimiter='\t')
-relatives = list()
+relatives = []
 
 for row in reader:
     if len(row) == 0 or row[0][0] == '#':

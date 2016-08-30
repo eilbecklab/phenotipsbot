@@ -134,8 +134,8 @@ def normalize(field_name, value):
 
 def parse_csv_file(file_name, unrecognized_column_callback, unrecognized_value_callback):
     reader = csv.reader(open(file_name, 'r'))
-    column_map = dict()
-    patients = list()
+    column_map = {}
+    patients = []
 
     i = -1
     for row in reader:
@@ -156,7 +156,7 @@ def parse_csv_file(file_name, unrecognized_column_callback, unrecognized_value_c
         if len(row) == 0:
             continue
 
-        patient = dict()
+        patient = {}
 
         for field in column_map:
             value = row[column_map[field]]
