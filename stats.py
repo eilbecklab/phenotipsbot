@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Program for getting statistics about a PhenoTips user
+# Program for getting statistics about a PhenoTips site
 #
 # Copyright 2016 University of Utah
 #
@@ -30,9 +30,10 @@ from sys import stderr
 base_url = None
 username = None
 password = None
-user_to_summarize = None
+users = []
+studies = []
 
-optlist, args = getopt(sys.argv[1:], '', ['base-url=', 'username=', 'password=', 'gene=', 'study='])
+optlist, args = getopt(sys.argv[1:], '', ['base-url=', 'username=', 'password=', 'of-user=', 'of-study='])
 for name, value in optlist:
     if name == '--base-url':
         base_url = value
@@ -40,8 +41,10 @@ for name, value in optlist:
         username = value
     elif name == '--password':
         password = value
-if len(args) > 0:
-    user_to_summarize = args[0]
+    elif name == '--of-user':
+        users.append(value.lower())
+    elif name == '--of-study':
+        studies.append(value.lower())
 
 #get any missing arguments and initialize the bot
 
@@ -65,9 +68,6 @@ if not password:
 if not password:
     password = 'admin'
 
-if user_to_summarize == None:
-    user_to_summarize = input('Input the user to see stats for (blank for all users): ')
-
 bot = PhenoTipsBot(base_url, username, password)
 
 patient_ids = bot.list()
@@ -84,7 +84,8 @@ for patient_id in patient_ids:
     stderr.write(str(count) + '\r')
     count += 1
 
-    if user_to_summarize == '' or bot.get_owner(patient_id) == user_to_summarize:
+    if ((len(users) == 0 or (bot.get_owner(patient_id) or '').lower() in users) and
+            (len(studies) == 0 or (bot.get_study(patient_id) or '').lower() in studies)):
         patient_total += 1
         patient = bot.get(patient_id)
         if patient['phenotype']:

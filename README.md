@@ -28,7 +28,7 @@ PatientClass. PhenoTips 1.2.2 or later is required.
     * [import-ped.py](#import-pedpy)
     * [export-ped.py](#export-pedpy)
     * [export-clinvar.py](#export-clinvarpy)
-    * [user-stats.py](#user-statspy)
+    * [stats.py](#statspy)
 * [Framework reference](#framework-reference)
     * [PhenoTipsBot](#phenotipsbot)
     * [ApgarType](#apgartype)
@@ -371,11 +371,11 @@ corresponding to the Variant tab and the CaseData tab of the official
 (ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/submission_templates/SubmissionTemplate.xlsx).
 Variant.csv contains aggregate data and CaseData.csv contains case-level data.
 
-### [user-stats.py](user-stats.py)
+### [stats.py](stats.py)
 #### Synopsis
 ```
-./user-stats.py [--base-url=<value>] [--username=<value>] [--password=<value>]
-                [<user-to-summarize>]
+./stats.py [--base-url=<value>] [--username=<value>] [--password=<value>]
+           [--of-user=<username>]... [--of-study=<study>]...
 ```
 
 #### Description
@@ -396,20 +396,24 @@ that have been used at least once in the set of owned patients.
     * The password to use to access the PhenoTips site.
     * The script will prompt for this value if it is not provided on the command
       line.
-* `<user-to-summarize>`
-    * The username of the user that is being investigated.
-    * The script will prompt for this value if it is not provided on the command
-      line.
+* `--of-user`
+    * The username of the user to stat.
+* `--of-study`
+    * The study to stat.
+
+`--of-user` and `--of-study` may be given multiple times to expand the search to
+multiple users or multiple studies. If both are used at least once, the search
+is restricted to patients both owned by one of the users and in one of the
+studies.
 
 #### Example
 To get statistics for a user:
 
 ```
-$ ./user-stats.py
+$ ./stats.py --of-user NapoleanDynamite
 Input the URL (blank for http://localhost:8080): 
 Input your username (blank for Admin): 
 Input your password (blank for admin): 
-Input the user to see stats for (blank for all users): NapoleanDynamite
 Looking through 1012 patient records...
 
 Owned patients: 52
