@@ -20,6 +20,7 @@
 # USA
 
 import csv
+import re
 import sys
 import time
 from datetime import timedelta
@@ -92,7 +93,7 @@ KNOWN_FIELDS = {
     'kindred_id'                           : 'Integer',
     'subject_data_relationship'            : 'String',
     'investigator'                         : 'String',
-    'home_zip_code'                        : 'Integer',
+    'home_zip_code'                        : 'Zip',
     'case_or_control'                      : 'Static List',
     #IBD
     'age_at_diagnosis'                     : 'Float',
@@ -127,6 +128,14 @@ def normalize(field_name, value):
             return int(value)
         elif field_type == 'Float':
             return float(value)
+        elif field_type == 'Zip':
+            components = re.match('(\d{1,5})(?:-(\d{4}))?', value.strip())
+            if not components:
+                raise ValueError()
+            value = components.group(1).zfill(5)
+            if components.group(2):
+                value += '-' + components.group(2)
+            return value
         else:
             return value
     except ValueError:
