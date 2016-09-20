@@ -56,7 +56,7 @@ class PhenoTipsBot:
     def create_collaborator(self, patient_id, collaborator_obj):
         if 'collaborator' in collaborator_obj:
             collaborator_obj = copy(collaborator_obj)
-            collaborator_obj['collaborator'] = 'xwiki:XWiki.' + collaborator_obj['collaborator']
+            collaborator_obj['collaborator'] = PhenoTipsBot.qualify(collaborator_obj['collaborator'], 'XWiki')
         return self.create_object(self, patient_id, 'PhenoTips.CollaboratorClass', collaborator_obj)
 
     def create_object(self, patient_id, object_class, object_obj):
@@ -116,7 +116,7 @@ class PhenoTipsBot:
 
     def get_collaborator(self, patient_id, collaborator_num):
         ret = self.get_object(patient_id, 'PhenoTips.CollaboratorClass', collaborator_num)
-        ret['collaborator'] = ret['collaborator'][len('xwiki:XWiki.'):]
+        ret['collaborator'] = PhenoTipsBot.unqualify(ret['collaborator'], 'XWiki')
         return ret
 
     def get_file(self, patient_id, filename):
@@ -152,7 +152,7 @@ class PhenoTipsBot:
         return ret
 
     def get_owner(self, patient_id):
-        return self.get_object(patient_id, 'PhenoTips.OwnerClass', '0')['owner'][len('xwiki:XWiki.'):]
+        return PhenoTipsBot.unqualify(self.get_object(patient_id, 'PhenoTips.OwnerClass', '0')['owner'], 'XWiki')
 
     def get_pedigree(self, patient_id):
         return json.loads(self.get_object(patient_id, 'PhenoTips.PedigreeClass', '0')['data'])
@@ -172,7 +172,7 @@ class PhenoTipsBot:
             if not el.text:
                 return ''
             else:
-                return el.text[len('xwiki:Studies.'):]
+                return unqualify(ret, 'Studies')
 
     def get_vcf(self, patient_id, vcf_num):
         return self.get_object(patient_id, 'PhenoTips.VCF', vcf_num)
@@ -252,7 +252,7 @@ class PhenoTipsBot:
     def set_collaborator(self, patient_id, collaborator_num, collaborator_obj):
         if 'collaborator' in collaborator_obj:
             collaborator_obj = copy(collaborator_obj)
-            collaborator_obj['collaborator'] = 'xwiki:XWiki.' + collaborator_obj['collaborator']
+            collaborator_obj['collaborator'] = PhenoTipsBot.qualify(collaborator_obj['collaborator'], 'XWiki')
         self.set_object(patient_id, 'PhenoTips.CollaboratorClass', collaborator_num, collaborator_obj)
 
     def set_file(self, patient_id, filename, contents):
@@ -268,8 +268,9 @@ class PhenoTipsBot:
         r = requests.put(url, auth=self.auth, data=data, verify=self.ssl_verify)
         r.raise_for_status()
 
-    def set_owner(self, patient_id, username):
-        self.set_object(patient_id, 'PhenoTips.OwnerClass', '0', {'owner': 'xwiki:XWiki.' + username})
+    def set_owner(self, patient_id, owner_name):
+        owner_name = PhenoTipsBot.qualify(owner_name, 'XWiki')
+        self.set_object(patient_id, 'PhenoTips.OwnerClass', '0', {'owner': owner_name})
 
     def set_pedigree(self, patient_id, pedigree_obj):
         #the SVG is not automatically updated if the JSON is changed via the REST API
@@ -292,19 +293,35 @@ class PhenoTipsBot:
             if study == None:
                 return
             else:
-                self.create_object(patient_id, 'PhenoTips.StudyBindingClass', {'studyReference': 'xwiki:Studies.' + study})
+                data = {'studyReference': PhenoTipsBot.qualify(study, 'Studies')}
+                self.create_object(patient_id, 'PhenoTips.StudyBindingClass', data)
         else:
             r.raise_for_status()
             if study == None:
                 requests.delete(url, auth=self.auth, verify=self.ssl_verify)
                 r.raise_for_status()
             else:
-                data = {'property#studyReference': 'xwiki:Studies.' + study}
+                data = {'property#studyReference': PhenoTipsBot.qualify(study, 'Studies')}
                 r = requests.put(url, auth=self.auth, data=data, verify=self.ssl_verify)
                 r.raise_for_status()
 
     def set_vcf(self, patient_id, vcf_num, vcf_obj):
         self.set_object(patient_id, 'PhenoTips.VCF', vcf_num, vcf_obj)
+
+    def qualify(pagename, namespace):
+        if not pagename:
+            return pagename
+        if not '.' in pagename:
+            pagename = namespace + '.' + pagename
+        if not ':' in pagename:
+            pagename = 'xwiki:' + pagename
+        return pagename
+
+    def unqualify(pagename, namespace):
+        if pagename.startswith('xwiki:' + namespace + '.'):
+            return pagename[len('xwiki:') + len(namespace) + len('.'):]
+        if pagename.startswith('xwiki:'):
+            return pagename[len('xwiki:'):]
 
     def upload_file(self, patient_id, filepath):
         fd = open(filepath, "rb")

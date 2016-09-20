@@ -438,8 +438,13 @@ Creates a new patient page and returns the patient ID (e.g. 'P000123'). If
 #### create_collaborator(patient_id, collaborator_obj)
 Creates a collaborator object on a patient page and returns its collaborator
 object number. Properties in `collaborator_obj` that are not in
-`PhenoTips.CollaboratorClass` on the server are discarded. 'xwiki:XWiki.' is
-automatically prepended to the collaborator's username.
+`PhenoTips.CollaboratorClass` on the server are discarded.
+
+The `collaborator` property of the collaborator object is usually
+`xwiki:XWiki.<username>` if the collaborator is a user and
+`xwiki:Groups.<groupname>` if the collaborator is a group (see the
+[PhenoTips FAQ](https://phenotips.org/FAQ/What+do+identifiers+in+the+format+xwiki%3AGroups.Cardiology+mean)).
+However, the `xwiki:` or `xwiki:XWiki.` may be omitted when using this function.
 
 #### create_object(patient_id, object_class, object_obj)
 Creates an arbitrary object on a patient page and returns its object number.
@@ -486,9 +491,11 @@ represents the pedigree data. id_generation can be 'external', 'newid', or
 Returns a patient object corresponding to the patient with the specified ID.
 
 #### get_collaborator(patient_id, collaborator_num)
-Returns a collaborator object on a patient page. 'xwiki:XWiki.' is automatically
-removed from the `collaborator` property, which contains the collaborator's
-username.
+Returns a collaborator object on a patient page. The `collaborator` property of
+the collaborator object is usually `xwiki:XWiki.<username>` if the collaborator
+is a user and `xwiki:Groups.<groupname>` if the collaborator is a group (see the
+[PhenoTips FAQ](https://phenotips.org/FAQ/What+do+identifiers+in+the+format+xwiki%3AGroups.Cardiology+mean)).
+However, this function removes `xwiki:` and `xwiki:XWiki.` automatically.
 
 #### get_file(patient_id, filename)
 Returns the binary contents of a file attached to a patient. See also
@@ -502,8 +509,11 @@ returns None. If multiple patients have the external ID, returns a list.
 Returns an arbitrary object on a patient page.
 
 #### get_owner(patient_id)
-Returns the name of the PhenoTips user that owns patient record. 'xwiki:XWiki.'
-is automatically removed from the owner's username.
+Returns the name of the PhenoTips user that owns patient record. The owner name
+is usually `xwiki:XWiki.<username>` if the collaborator is a user and
+`xwiki:Groups.<groupname>` if the collaborator is a group (see the
+[PhenoTips FAQ](https://phenotips.org/FAQ/What+do+identifiers+in+the+format+xwiki%3AGroups.Cardiology+mean)).
+However, this function removes `xwiki:` and `xwiki:XWiki.` automatically.
 
 #### get_pedigree(patient_id)
 Returns the patient's pedigree, which is displayed to the user as an SVG image,
@@ -513,11 +523,15 @@ as an object deserialized from the internal JSON representation.
 Returns a relative relationship object on a patient page.
 
 #### get_study(patient_id)
-Returns the name of the patient's study form. 'xwiki:Studies.' is automatically
-removed from the study name. If the patient does not have a StudyBindingClass
-(usually because no studies have been defined), this function returns None. If
-the patient does have a StudyBindingClass but it's set to the default study
-form, this function returns an empty string.
+Returns the name of the patient's study form. The study name is usually
+`xwiki:Studies.<study>` (see the
+[PhenoTips FAQ](https://phenotips.org/FAQ/What+do+identifiers+in+the+format+xwiki%3AGroups.Cardiology+mean)).
+However, this function removes `xwiki:` and `xwiki:Studies.` automatically.
+
+If the patient does not have a StudyBindingClass (usually because no studies
+have been defined), this function returns None. If the patient does have a
+StudyBindingClass but it's set to the default study form, this function returns
+an empty string.
 
 #### get_vcf(patient_id, vcf_num)
 Returns a VCF object on a patient page.
@@ -558,8 +572,13 @@ on the server are updated.
 #### set_collaborator(patient_id, collaborator_num, collaborator_obj)
 Updates the properties of a collaborator object. Only properties that exist in
 both collaborator_obj and `PhenoTips.CollaboratorClass` on the server are
-updated. 'xwiki:XWiki.' is automatically prepended to the `collaborator`
-property, which contains the collaborator's username.
+updated.
+
+The `collaborator` property of the collaborator object is usually
+`xwiki:XWiki.<username>` if the collaborator is a user and
+`xwiki:Groups.<groupname>` if the collaborator is a group (see the
+[PhenoTips FAQ](https://phenotips.org/FAQ/What+do+identifiers+in+the+format+xwiki%3AGroups.Cardiology+mean)).
+However, the `xwiki:` or `xwiki:XWiki.` may be omitted when using this function.
 
 #### set_file(patient_id, filename, contents)
 Uploads and attaches a binary file to a patient. See also
@@ -569,10 +588,12 @@ Uploads and attaches a binary file to a patient. See also
 Updates the properties of an object. Only properties that exist in both
 `object_obj` and in the class on the server are updated.
 
-#### set_owner(patient_id, username)
-Sets the owner of the patient record to a PhenoTips user. 'xwiki:XWiki.' is
-automatically prepended to the username. This function does not verify that the
-user exists.
+#### set_owner(patient_id, owner_name)
+Sets the owner of the patient record to a PhenoTips user. The owner name
+is usually `xwiki:XWiki.<username>` if the collaborator is a user and
+`xwiki:Groups.<groupname>` if the collaborator is a group (see the
+[PhenoTips FAQ](https://phenotips.org/FAQ/What+do+identifiers+in+the+format+xwiki%3AGroups.Cardiology+mean)).
+However, the `xwiki:` or `xwiki:XWiki.` may be omitted when using this function.
 
 #### set_pedigree(patient_id, pedigree_obj)
 Sets the patient's pedigree data and updates the SVG image that is shown to the
@@ -585,8 +606,11 @@ updated. The referenced relative should already exist in PhenoTips.
 
 #### set_study(patient_id, study)
 Sets the patient's study form. Pass `study=''` for the default study form, or
-`study=None` for the default study form and no study link. 'xwiki:Studies.' is
-automatically prepended to the study name.
+`study=None` for the default study form and no study link. The study name
+is usually `xwiki:Studies.<study>` (see the
+[PhenoTips FAQ](https://phenotips.org/FAQ/What+do+identifiers+in+the+format+xwiki%3AGroups.Cardiology+mean)).
+However, the `xwiki:` or `xwiki:Studies.` may be omitted when using this
+function.
 
 #### set_vcf(patient_id, vcf_num, vcf_obj)
 Updates the properties of a VCF object. Only properties that exist in both
