@@ -137,7 +137,7 @@ def normalize(field_name, value):
                 value += '-' + components.group(2)
             return value
         else:
-            return value
+            return value.strip()
     except ValueError:
         return None
 
