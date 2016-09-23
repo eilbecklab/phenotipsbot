@@ -172,7 +172,7 @@ class PhenoTipsBot:
             if not el.text:
                 return ''
             else:
-                return unqualify(ret, 'Studies')
+                return PhenoTipsBot.unqualify(el.text, 'Studies')
 
     def get_vcf(self, patient_id, vcf_num):
         return self.get_object(patient_id, 'PhenoTips.VCF', vcf_num)
