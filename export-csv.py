@@ -29,7 +29,7 @@ from phenotipsbot import PhenoTipsBot
 from sys import stderr
 from sys import stdout
 
-def export_patients(bot, patient_ids, study, out_file, progress_callback):
+def export_patients(bot, patient_ids, study, owner, out_file, progress_callback):
     start_time = time.time()
     count = 0
     n_exported = 0
@@ -46,6 +46,11 @@ def export_patients(bot, patient_ids, study, out_file, progress_callback):
         if study != None:
             patient_study = bot.get_study(patient_id)
             if patient_study != study and not (study == '' and patient_study == None):
+                continue
+
+        if owner:
+            patient_owner = bot.get_owner(patient_id)
+            if PhenoTipsBot.qualify(patient_owner) != PhenoTipsBot.qualify(owner):
                 continue
 
         patient = bot.get(patient_id)
@@ -66,8 +71,9 @@ if __name__ == '__main__':
     username = None
     password = None
     study = None
+    owner = None
 
-    optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study='])
+    optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study=', 'owner='])
     for name, value in optlist:
         if name == '--base-url':
             base_url = value
@@ -77,6 +83,8 @@ if __name__ == '__main__':
             password = value
         elif name == '--study':
             study = value
+        elif name == '--owner':
+            owner = value
 
     #get any missing arguments and initialize the bot
 
@@ -117,6 +125,18 @@ if __name__ == '__main__':
     elif study == 'None':
         study = None
 
+    if owner == None:
+        users = bot.list_users()
+        groups = bot.list_groups()
+        if len(users) > 1:
+            print('Available users:')
+            print('* ' + '\n* '.join(users))
+        if len(groups):
+            print('Available work groups:')
+            print('* ' + '\n* Groups.'.join(groups))
+        if len(users) > 1 or len(groups):
+            owner = input('Input which user or group\'s patients to export (blank for all users): ')
+
     #begin export
 
     patient_ids = bot.list()
@@ -124,7 +144,7 @@ if __name__ == '__main__':
     stderr.write('Looking through ' + str(len(patient_ids)) + ' patient records...\n')
     stderr.write('\n')
 
-    n_exported, elapsed_time = export_patients(bot, patient_ids, study, stdout, lambda count: stderr.write(str(count) + '\r'))
+    n_exported, elapsed_time = export_patients(bot, patient_ids, study, owner, stdout, lambda count: stderr.write(str(count) + '\r'))
 
     stderr.write('\n')
     stderr.write('Exported ' + str(n_exported) + ' patients.\n')

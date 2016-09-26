@@ -156,6 +156,16 @@
          <widget class="QComboBox" name="studySelector"/>
         </item>
         <item>
+         <widget class="QLabel" name="ownerLabel">
+          <property name="text">
+           <string>Which owner?</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="ownerSelector"/>
+        </item>
+        <item>
          <widget class="QLabel" name="geneLabel">
           <property name="text">
            <string>Which gene are you submitting on?</string>

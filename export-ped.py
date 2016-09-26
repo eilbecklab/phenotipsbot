@@ -35,8 +35,9 @@ base_url = None
 username = None
 password = None
 study = None
+owner = None
 
-optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study='])
+optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study=', 'owner='])
 for name, value in optlist:
     if name == '--base-url':
         base_url = value
@@ -46,6 +47,8 @@ for name, value in optlist:
         password = value
     elif name == '--study':
         study = value
+    elif name == '--owner':
+        owner = value
 
 #get any missing arguments and initialize the bot
 
@@ -86,6 +89,18 @@ if study == None:
 elif study == 'None':
     study = None
 
+if owner == None:
+    users = bot.list_users()
+    groups = bot.list_groups()
+    if len(users) > 1:
+        print('Available users:')
+        print('* ' + '\n* '.join(users))
+    if len(groups):
+        print('Available work groups:')
+        print('* ' + '\n* Groups.'.join(groups))
+    if len(users) > 1 or len(groups):
+        owner = input('Input which user or group\'s patients to export (blank for all users): ')
+
 #begin export
 
 start_time = time.time()
@@ -108,6 +123,11 @@ for patient_id in patient_ids:
     if study != None:
         patient_study = bot.get_study(patient_id)
         if patient_study != study and not (study == '' and patient_study == None):
+            continue
+
+    if owner:
+        patient_owner = bot.get_owner(patient_id)
+        if PhenoTipsBot.qualify(patient_owner) != PhenoTipsBot.qualify(owner):
             continue
 
     patient = bot.get(patient_id)

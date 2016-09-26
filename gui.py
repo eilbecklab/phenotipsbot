@@ -39,11 +39,17 @@ class MainWindow(QMainWindow):
         self.exportClinVarOption.clicked.connect(self.operationOption_clicked)
         self.browseButton.clicked.connect(self.browseButton_clicked)
 
+    def asyncAddGeneSelectorItem(self, item):
+        QMetaObject.invokeMethod(self, 'addGeneSelectorItem', Qt.QueuedConnection, Q_ARG(str, item))
+
+    def asyncAddOwnerSelectorItem(self, item):
+        QMetaObject.invokeMethod(self, 'addOwnerSelectorItem', Qt.QueuedConnection, Q_ARG(str, item))
+
     def asyncAddStudySelectorItem(self, item):
         QMetaObject.invokeMethod(self, 'addStudySelectorItem', Qt.QueuedConnection, Q_ARG(str, item))
 
-    def asyncAddGeneSelectorItem(self, item):
-        QMetaObject.invokeMethod(self, 'addGeneSelectorItem', Qt.QueuedConnection, Q_ARG(str, item))
+    def asyncClearOwnerSelector(self):
+        QMetaObject.invokeMethod(self.ownerSelector, 'clear', Qt.QueuedConnection)
 
     def asyncClearStudySelector(self):
         QMetaObject.invokeMethod(self.studySelector, 'clear', Qt.QueuedConnection)
@@ -69,6 +75,12 @@ class MainWindow(QMainWindow):
     def asyncSetConfirmation(self, confirmation):
         QMetaObject.invokeMethod(self.confirmationLabel, 'setText', Qt.QueuedConnection, Q_ARG(str, confirmation))
 
+    def asyncSetOwnerLabelText(self, text):
+        QMetaObject.invokeMethod(self.ownerLabel, 'setText', Qt.QueuedConnection, Q_ARG(str, text))
+
+    def asyncSetOwnerSelectorText(self, text):
+        QMetaObject.invokeMethod(self.ownerSelector, 'setCurrentText', Qt.QueuedConnection, Q_ARG(str, text))
+
     def asyncSetPage(self, index):
         QMetaObject.invokeMethod(self.stackedWidget, 'setCurrentIndex', Qt.QueuedConnection, Q_ARG(int, index))
 
@@ -91,10 +103,15 @@ class MainWindow(QMainWindow):
         self.asyncSetStatus(status)
 
     def turnToPage2(self):
-        self.asyncLockUi('Finding studies...')
-        self.bot = PhenoTipsBot(self.siteSelector.currentText().rstrip('/'), self.usernameTextbox.text(), self.passwordTextbox.text())
+        self.asyncLockUi('Finding studies, users, and work groups...')
+        self.site = self.siteSelector.currentText().rstrip('/')
+        self.username = self.usernameTextbox.text()
+        self.password = self.passwordTextbox.text()
+        self.bot = PhenoTipsBot(self.site, self.username, self.password)
         try:
             self.studies = self.bot.list_studies()
+            self.users = self.bot.list_users()
+            self.groups = self.bot.list_groups()
             self.gene_table = {}
             if self.operation == EXPORT_CLINVAR:
                 self.asyncSetStatus('Getting patient list...')
@@ -113,19 +130,29 @@ class MainWindow(QMainWindow):
         except Exception as err:
             self.asyncUnlockUi(str(err))
             return
-        if len(self.studies):
+        if len(self.studies) or len(self.users) > 1 or len(self.groups):
             self.asyncClearStudySelector()
+            self.asyncClearOwnerSelector()
             if self.operation == IMPORT_CSV:
                 self.asyncSetStudyLabelText('Which study form should be used for the new patients?')
+                self.asyncSetOwnerLabelText('Who should own (have access to) the new patients?')
             else:
                 self.asyncSetStudyLabelText('Which study do you want to export from?')
                 self.asyncAddStudySelectorItem('All studies')
+                self.asyncSetOwnerLabelText('Which user or group\'s patients do you want to export?')
+                self.asyncAddOwnerSelectorItem('All users')
             self.asyncAddStudySelectorItem('Default study')
             for study in self.studies:
                 self.asyncAddStudySelectorItem(study)
+            for user in self.users:
+                self.asyncAddOwnerSelectorItem(user)
+            for group in self.groups:
+                self.asyncAddOwnerSelectorItem('Groups.' + group)
+            if self.operation == IMPORT_CSV:
+                self.asyncSetOwnerSelectorText(self.username)
         if self.operation == IMPORT_CSV:
             self.asyncHideGeneSelector()
-            if len(self.studies):
+            if len(self.users) > 1 or len(self.studies):
                 self.asyncSetPage(2)
             else:
                 self.study = None
@@ -148,6 +175,7 @@ class MainWindow(QMainWindow):
                     self.asyncSetPage(2)
                 else:
                     self.study = None
+                    self.owner = self.username
                     self.gene = None
                     self.asyncTurnToPage3()
                 self.asyncUnlockUi()
@@ -196,7 +224,7 @@ class MainWindow(QMainWindow):
             self.asyncLockUi('Importing/updating...', len(self.patients))
 
             try:
-                elapsedTime = import_patients(self.bot, self.patients, self.patient_ids, self.study, self.asyncSetProgress)
+                elapsedTime = import_patients(self.bot, self.patients, self.patient_ids, self.study, self.owner, self.asyncSetProgress)
             except Exception as err:
                 self.asyncUnlockUi(str(err))
                 return
@@ -212,7 +240,7 @@ class MainWindow(QMainWindow):
                 patient_ids = self.bot.list()
                 self.asyncSetStatus('Exporting...', len(patient_ids))
                 outFile = open(self.path, 'w')
-                n_exported, elapsedTime = export_patients(self.bot, patient_ids, self.study, outFile, self.asyncSetProgress)
+                n_exported, elapsedTime = export_patients(self.bot, patient_ids, self.study, self.owner, outFile, self.asyncSetProgress)
                 outFile.close()
             except Exception as err:
                 self.asyncUnlockUi(str(err))
@@ -230,7 +258,7 @@ class MainWindow(QMainWindow):
             self.asyncLockUi('Exporting...', len(patient_ids))
 
             try:
-                clinvar_data, elapsedTime1 = get_clinvar_data(self.bot, patient_ids, self.study, self.gene, self.asyncSetProgress)
+                clinvar_data, elapsedTime1 = get_clinvar_data(self.bot, patient_ids, self.study, self.owner, self.gene, self.asyncSetProgress)
 
                 self.asyncSetStatus('Writing files Variant.csv and CaseData.csv...')
                 variantsFile = open(self.path + '/Variant.csv', 'w')
@@ -259,6 +287,10 @@ class MainWindow(QMainWindow):
     def addStudySelectorItem(self, item):
         self.studySelector.addItem(item)
 
+    @pyqtSlot(str)
+    def addOwnerSelectorItem(self, item):
+        self.ownerSelector.addItem(item)
+
     def browseButton_clicked(self):
         if self.operation == IMPORT_CSV:
             path = QFileDialog.getOpenFileName(self, 'Import spreadsheet', '', '*.csv')[0]
@@ -282,7 +314,7 @@ class MainWindow(QMainWindow):
             self.stackedWidget.setCurrentIndex(1) #login
         elif self.stackedWidget.currentIndex() == 1: #login
             Thread(target=self.turnToPage2).start() #study
-        elif self.stackedWidget.currentIndex() == 2: #study
+        elif self.stackedWidget.currentIndex() == 2: #study, owner, and gene
             self.study = self.studySelector.currentText()
             if self.study == 'All studies':
                 self.study = None
@@ -291,6 +323,9 @@ class MainWindow(QMainWindow):
                     self.study = ''
                 else:
                     self.study = None
+            self.owner = self.ownerSelector.currentText()
+            if self.owner == 'All users':
+                self.owner = None
             self.gene = self.geneSelector.currentText()
             if self.gene == 'All genes':
                 self.gene = None

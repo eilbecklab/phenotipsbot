@@ -194,7 +194,7 @@ def get_patient_ids(bot, patients, progress_callback):
 
     return patient_ids
 
-def import_patients(bot, patients, patient_ids, study, progress_callback):
+def import_patients(bot, patients, patient_ids, study, owner, progress_callback):
     count = 0
     start_time = time.time()
 
@@ -202,7 +202,7 @@ def import_patients(bot, patients, patient_ids, study, progress_callback):
         if patient_ids.get(patient.get('external_id')):
             bot.set(patient_ids[patient['external_id']], patient)
         else:
-            bot.create(patient, study)
+            bot.create(patient, study, owner)
         count += 1
         progress_callback(count)
 
@@ -220,9 +220,10 @@ if __name__ == '__main__':
     username = None
     password = None
     study = None
+    owner = None
     yes = False
 
-    optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study=', 'yes'])
+    optlist, args = getopt(sys.argv[1:], '-y', ['base-url=', 'username=', 'password=', 'study=', 'owner=', 'yes'])
     for name, value in optlist:
         if name == '--base-url':
             base_url = value
@@ -232,6 +233,8 @@ if __name__ == '__main__':
             password = value
         elif name == '--study':
             study = value
+        elif name == '--owner':
+            owner = value
         elif name in ('-y', '--yes'):
             yes = True
 
@@ -273,6 +276,20 @@ if __name__ == '__main__':
     elif study == 'None':
         study = None
 
+    if owner == None:
+        users = bot.list_users()
+        groups = bot.list_groups()
+        if len(users) > 1:
+            print('Available users:')
+            print('* ' + '\n* '.join(users))
+        if len(groups):
+            print('Available work groups:')
+            print('* ' + '\n* Groups.'.join(groups))
+        if len(users) > 1 or len(groups):
+            owner = input('Input which user or group should own (have access to) the new patients (blank for ' + username + '): ')
+    if not owner:
+        owner = username
+
     #check external IDs
 
     print('Checking ' + str(len(patients)) + ' external IDs...')
@@ -285,5 +302,5 @@ if __name__ == '__main__':
     n_to_update = str(len(patient_ids))
 
     if yes or input('You are about to import ' + n_to_import + ' new patients and update ' + n_to_update + ' existing patients. Type y to continue: ')[0] == 'y':
-        elapsed_time = import_patients(bot, patients, patient_ids, study, lambda count: stdout.write(str(count) + '\r'))
+        elapsed_time = import_patients(bot, patients, patient_ids, study, owner, lambda count: stdout.write(str(count) + '\r'))
         print('All done! Elapsed time ' + str(elapsed_time))
