@@ -58,7 +58,7 @@ class PhenoTipsBot:
     def create_collaborator(self, patient_id, collaborator_obj):
         if 'collaborator' in collaborator_obj:
             collaborator_obj = copy(collaborator_obj)
-            collaborator_obj['collaborator'] = PhenoTipsBot.qualify(collaborator_obj['collaborator'], 'XWiki')
+            collaborator_obj['collaborator'] = PhenoTipsBot.qualify(collaborator_obj['collaborator'])
         return self.create_object(self, patient_id, 'PhenoTips.CollaboratorClass', collaborator_obj)
 
     def create_object(self, patient_id, object_class, object_obj):
@@ -118,7 +118,7 @@ class PhenoTipsBot:
 
     def get_collaborator(self, patient_id, collaborator_num):
         ret = self.get_object(patient_id, 'PhenoTips.CollaboratorClass', collaborator_num)
-        ret['collaborator'] = PhenoTipsBot.unqualify(ret['collaborator'], 'XWiki')
+        ret['collaborator'] = PhenoTipsBot.unqualify(ret['collaborator'])
         return ret
 
     def get_file(self, patient_id, filename):
@@ -154,7 +154,7 @@ class PhenoTipsBot:
         return ret
 
     def get_owner(self, patient_id):
-        return PhenoTipsBot.unqualify(self.get_object(patient_id, 'PhenoTips.OwnerClass', '0')['owner'], 'XWiki')
+        return PhenoTipsBot.unqualify(self.get_object(patient_id, 'PhenoTips.OwnerClass', '0')['owner'])
 
     def get_pedigree(self, patient_id):
         return json.loads(self.get_object(patient_id, 'PhenoTips.PedigreeClass', '0')['data'])
@@ -273,7 +273,7 @@ class PhenoTipsBot:
     def set_collaborator(self, patient_id, collaborator_num, collaborator_obj):
         if 'collaborator' in collaborator_obj:
             collaborator_obj = copy(collaborator_obj)
-            collaborator_obj['collaborator'] = PhenoTipsBot.qualify(collaborator_obj['collaborator'], 'XWiki')
+            collaborator_obj['collaborator'] = PhenoTipsBot.qualify(collaborator_obj['collaborator'])
         self.set_object(patient_id, 'PhenoTips.CollaboratorClass', collaborator_num, collaborator_obj)
 
     def set_file(self, patient_id, filename, contents):
@@ -290,7 +290,7 @@ class PhenoTipsBot:
         r.raise_for_status()
 
     def set_owner(self, patient_id, owner):
-        owner_name = PhenoTipsBot.qualify(owner, 'XWiki')
+        owner_name = PhenoTipsBot.qualify(owner)
         self.set_object(patient_id, 'PhenoTips.OwnerClass', '0', {'owner': owner})
 
     def set_pedigree(self, patient_id, pedigree_obj):
@@ -329,7 +329,7 @@ class PhenoTipsBot:
     def set_vcf(self, patient_id, vcf_num, vcf_obj):
         self.set_object(patient_id, 'PhenoTips.VCF', vcf_num, vcf_obj)
 
-    def qualify(pagename, namespace):
+    def qualify(pagename, namespace='XWiki'):
         if not pagename:
             return pagename
         if not '.' in pagename:
@@ -338,7 +338,7 @@ class PhenoTipsBot:
             pagename = 'xwiki:' + pagename
         return pagename
 
-    def unqualify(pagename, namespace):
+    def unqualify(pagename, namespace='XWiki'):
         if pagename.startswith('xwiki:' + namespace + '.'):
             return pagename[len('xwiki:') + len(namespace) + len('.'):]
         if pagename.startswith('xwiki:'):
