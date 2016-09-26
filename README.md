@@ -509,8 +509,8 @@ returns None. If multiple patients have the external ID, returns a list.
 Returns an arbitrary object on a patient page.
 
 #### get_owner(patient_id)
-Returns the name of the PhenoTips user that owns patient record. The owner name
-is usually `xwiki:XWiki.<username>` if the collaborator is a user and
+Returns the name of the PhenoTips user or group that owns patient record. The
+owner name is usually `xwiki:XWiki.<username>` if the collaborator is a user and
 `xwiki:Groups.<groupname>` if the collaborator is a group (see the
 [PhenoTips FAQ](https://phenotips.org/FAQ/What+do+identifiers+in+the+format+xwiki%3AGroups.Cardiology+mean)).
 However, this function removes `xwiki:` and `xwiki:XWiki.` automatically.
@@ -598,9 +598,9 @@ Uploads and attaches a binary file to a patient. See also
 Updates the properties of an object. Only properties that exist in both
 `object_obj` and in the class on the server are updated.
 
-#### set_owner(patient_id, owner_name)
-Sets the owner of the patient record to a PhenoTips user. The owner name
-is usually `xwiki:XWiki.<username>` if the collaborator is a user and
+#### set_owner(patient_id, owner)
+Sets the owner of the patient record to a PhenoTips user or group. The owner
+name is usually `xwiki:XWiki.<username>` if the collaborator is a user and
 `xwiki:Groups.<groupname>` if the collaborator is a group (see the
 [PhenoTips FAQ](https://phenotips.org/FAQ/What+do+identifiers+in+the+format+xwiki%3AGroups.Cardiology+mean)).
 However, the `xwiki:` or `xwiki:XWiki.` may be omitted when using this function.

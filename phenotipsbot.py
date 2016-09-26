@@ -287,9 +287,9 @@ class PhenoTipsBot:
         r = requests.put(url, auth=self.auth, data=data, verify=self.ssl_verify)
         r.raise_for_status()
 
-    def set_owner(self, patient_id, owner_name):
-        owner_name = PhenoTipsBot.qualify(owner_name, 'XWiki')
-        self.set_object(patient_id, 'PhenoTips.OwnerClass', '0', {'owner': owner_name})
+    def set_owner(self, patient_id, owner):
+        owner_name = PhenoTipsBot.qualify(owner, 'XWiki')
+        self.set_object(patient_id, 'PhenoTips.OwnerClass', '0', {'owner': owner})
 
     def set_pedigree(self, patient_id, pedigree_obj):
         #the SVG is not automatically updated if the JSON is changed via the REST API
