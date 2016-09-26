@@ -547,9 +547,16 @@ Returns a list of patient IDs on the server.
 Returns a list of the numbers of the collaborator objects attached to the
 patient page.
 
+#### list_groups()
+Returns a list of the work groups defined on the server.
+
 #### list_objects(patient_id, object_class)
 Returns a list of the numbers of the objects of a particular class that are
 attached to the patient page.
+
+#### list_pages(space, having_object=None)
+Returns a list of the pages in a namespace, optionally filtering out pages that
+do not have a particular kind of object.
 
 #### list_patient_class_properties()
 Returns a list of the possible property names that a patient object can have.
@@ -560,6 +567,9 @@ the patient page.
 
 #### list_studies()
 Returns a list of the custom study forms defined on the server.
+
+#### list_users()
+Returns a list of the user accounts on the server.
 
 #### list_vcfs()
 Returns a list of the numbers of the VCF objects attached to the patient page.

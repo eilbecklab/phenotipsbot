@@ -221,6 +221,9 @@ class PhenoTipsBot:
     def list_collaborators(self, patient_id):
         return self.list_objects(patient_id, 'PhenoTips.CollaboratorClass')
 
+    def list_groups(self):
+        return self.list_pages('Groups', 'PhenoTips.PhenoTipsGroupClass')
+
     def list_objects(self, patient_id, object_class):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/' + object_class
         r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
@@ -229,6 +232,24 @@ class PhenoTipsBot:
         number_elements = root.findall('./{http://www.xwiki.org}objectSummary/{http://www.xwiki.org}number')
         return list(map(lambda el: el.text, number_elements))
 
+    def list_pages(self, space, having_object=None):
+        url = self.base + '/rest/wikis/xwiki/spaces/' + space + '/pages'
+        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
+        r.raise_for_status()
+        root = ElementTree.fromstring(r.text)
+        name_elements = root.findall('./{http://www.xwiki.org}pageSummary/{http://www.xwiki.org}name')
+        pages = map(lambda el: el.text, name_elements)
+        if having_object:
+            ret = []
+            for page in pages:
+                url = self.base + '/rest/wikis/xwiki/spaces/' + space + '/pages/' + page + '/objects/' + having_object + '/0'
+                r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
+                if r.status_code == 200:
+                    ret.append(page)
+            return ret
+        else:
+            return pages
+
     def list_patient_class_properties(self):
         return sef.list_class_properties('PhenoTips.PatientClass')
 
@@ -236,12 +257,10 @@ class PhenoTipsBot:
         return self.list_objects(patient_id, 'PhenoTips.RelativeClass')
 
     def list_studies(self):
-        url = self.base + '/rest/wikis/xwiki/spaces/Studies/pages'
-        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
-        r.raise_for_status()
-        root = ElementTree.fromstring(r.text)
-        name_elements = root.findall('./{http://www.xwiki.org}pageSummary/{http://www.xwiki.org}name')
-        return list(filter(lambda study: study not in ('WebHome', 'WebPreferences'), map(lambda el: el.text, name_elements)))
+        return self.list_pages('Studies', 'PhenoTips.StudyClass')
+
+    def list_users(self):
+        return self.list_pages('XWiki', 'XWiki.XWikiUsers')
 
     def list_vcfs(self, patient_id):
         return self.list_objects(patient_id, 'PhenoTips.VCF')
