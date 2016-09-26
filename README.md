@@ -429,10 +429,11 @@ Constructs a PhenoTipsBot instance with the specified parameters. The base URL
 should include the protocol but no trailing slash. Any changes made to the
 server will be logged under the provided username.
 
-#### create(patient_obj, study, pedigree)
+#### create(patient_obj, study=None, owner=None, pedigree=None)
 Creates a new patient page and returns the patient ID (e.g. 'P000123'). If
-`patient_obj`, `study`, or `pedigree` is given,
-[set](#setpatient_id-patient_obj), [set_study](#set_studypatient_id-study), or
+`patient_obj`, `study`, `owner`, or `pedigree` is given,
+[set](#setpatient_id-patient_obj), [set_study](#set_studypatient_id-study),
+[set_owner](#set_ownerowner), or
 [set_pedigree](#set_pedigreepatient_id-pedigree_obj) is also called.
 
 #### create_collaborator(patient_id, collaborator_obj)

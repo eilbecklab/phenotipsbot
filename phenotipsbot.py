@@ -36,7 +36,7 @@ class PhenoTipsBot:
         self.auth = (username, password)
         self.ssl_verify = ssl_verify
 
-    def create(self, patient_obj=None, study=None, pedigree=None):
+    def create(self, patient_obj=None, study=None, owner=None, pedigree=None):
         r = requests.post(self.base + '/rest/patients', auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
         patient_id = r.headers['location']
@@ -45,6 +45,8 @@ class PhenoTipsBot:
             self.set(patient_id, patient_obj)
         if study:
             self.set_study(patient_id, study)
+        if owner:
+            self.set_owner(patient_id, owner)
         if pedigree:
             self.set_pedigree(patient_id, pedigree)
         #the mandatory PhenoTips.VCF object is not added until someone visits the edit page
