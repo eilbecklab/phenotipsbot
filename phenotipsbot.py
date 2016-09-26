@@ -253,7 +253,7 @@ class PhenoTipsBot:
             return pages
 
     def list_patient_class_properties(self):
-        return sef.list_class_properties('PhenoTips.PatientClass')
+        return self.list_class_properties('PhenoTips.PatientClass')
 
     def list_relatives(self, patient_id):
         return self.list_objects(patient_id, 'PhenoTips.RelativeClass')
