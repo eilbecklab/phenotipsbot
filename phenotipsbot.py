@@ -226,6 +226,14 @@ class PhenoTipsBot:
     def list_groups(self):
         return self.list_pages('Groups', 'PhenoTips.PhenoTipsGroupClass')
 
+    def list_hql(self, query):
+        url = self.base + '/rest/wikis/xwiki/query'
+        r = requests.get(url, params={'q': query, 'type': 'hql'}, auth=self.auth, verify=self.ssl_verify)
+        r.raise_for_status()
+        root = ElementTree.fromstring(r.text)
+        id_elements = root.findall('./{http://www.xwiki.org}searchResult/{http://www.xwiki.org}id')
+        return list(map(lambda el: el.text, id_elements))
+
     def list_objects(self, patient_id, object_class):
         url = self.base + '/rest/wikis/xwiki/spaces/data/pages/' + patient_id + '/objects/' + object_class
         r = requests.get(url, auth=self.auth, verify=self.ssl_verify)

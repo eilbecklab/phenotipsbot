@@ -551,6 +551,14 @@ patient page.
 #### list_groups()
 Returns a list of the work groups defined on the server.
 
+#### list_hql(query)
+Returns a list of the pages on the server, filtered by an HQL expression. See
+the
+[XWiki query module documentation](http://extensions.xwiki.org/xwiki/bin/view/Extension/Query+Module#HQueryLanguageExamples)
+for examples. Page names are typically prefixed with 'xwiki:' and the namespace;
+to remove these prefixes use the
+[PhenoTipsBot.unqualify](#phenotipsbotunqualifypagename-namespacexwiki) function.
+
 #### list_objects(patient_id, object_class)
 Returns a list of the numbers of the objects of a particular class that are
 attached to the patient page.
