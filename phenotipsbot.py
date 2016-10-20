@@ -243,22 +243,10 @@ class PhenoTipsBot:
         return list(map(lambda el: el.text, number_elements))
 
     def list_pages(self, space, having_object=None):
-        url = self.base + '/rest/wikis/xwiki/spaces/' + space + '/pages'
-        r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
-        r.raise_for_status()
-        root = ElementTree.fromstring(r.text)
-        name_elements = root.findall('./{http://www.xwiki.org}pageSummary/{http://www.xwiki.org}name')
-        pages = map(lambda el: el.text, name_elements)
+        query = ", BaseObject as obj where doc.space = '" + space + "'"
         if having_object:
-            ret = []
-            for page in pages:
-                url = self.base + '/rest/wikis/xwiki/spaces/' + space + '/pages/' + page + '/objects/' + having_object + '/0'
-                r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
-                if r.status_code == 200:
-                    ret.append(page)
-            return ret
-        else:
-            return pages
+            query += " and doc.fullName = obj.name and obj.className = '" + having_object + "'"
+        return list(map(lambda pagename: PhenoTipsBot.unqualify(pagename, space), self.list_hql(query)))
 
     def list_patient_class_properties(self):
         return self.list_class_properties('PhenoTips.PatientClass')
