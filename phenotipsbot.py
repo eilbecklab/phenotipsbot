@@ -329,6 +329,11 @@ class PhenoTipsBot:
     def set_vcf(self, patient_id, vcf_num, vcf_obj):
         self.set_object(patient_id, 'PhenoTips.VCF', vcf_num, vcf_obj)
 
+    def upload_file(self, patient_id, filepath):
+        fd = open(filepath, "rb")
+        self.set_file(patient_id, basename(filepath), fd.read())
+        fd.close()
+
     def qualify(pagename, namespace='XWiki'):
         if not pagename:
             return pagename
@@ -343,11 +348,6 @@ class PhenoTipsBot:
             return pagename[len('xwiki:') + len(namespace) + len('.'):]
         if pagename.startswith('xwiki:'):
             return pagename[len('xwiki:'):]
-
-    def upload_file(self, patient_id, filepath):
-        fd = open(filepath, "rb")
-        self.set_file(patient_id, basename(filepath), fd.read())
-        fd.close()
 
 class ApgarType:
     unknown = 'unknown'

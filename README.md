@@ -632,6 +632,14 @@ Uploads a file from disk and attaches it to a patient. The file's name on disk
 becomes the file's name in PhenoTips. If you need to upload a file from memory,
 use [set_file](#set_filepatient_id-filename-contents) instead.
 
+#### PhenoTipsBot.qualify(pagename, namespace='XWiki')
+Returns the page name prefixed with 'xwiki:' and the specified namespace, if
+they were not already present.
+
+#### PhenoTipsBot.unqualify(pagename, namespace='XWiki')
+Returns the page name with 'xwiki:' and the specified namespace removed, if
+they were present.
+
 ### ApgarType
 * ApgarType.unknown
 
