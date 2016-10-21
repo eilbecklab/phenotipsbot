@@ -119,8 +119,8 @@ class MainWindow(QMainWindow):
                 self.asyncSetStatus('Getting gene list...', len(patient_ids))
                 count = 0
                 for patient_id in patient_ids:
-                    for variant_num in self.bot.list_objects(patient_id, 'Main.ClinVarVariant'):
-                        gene = self.bot.get_object(patient_id, 'Main.ClinVarVariant', variant_num).get('gene_symbol').upper()
+                    for variant_num in self.bot.list_objects(patient_id, 'PhenoTips.ClinVarVariantClass'):
+                        gene = self.bot.get_object(patient_id, 'PhenoTips.ClinVarVariantClass', variant_num).get('gene_symbol').upper()
                         if gene:
                             if gene not in self.gene_table:
                                 self.gene_table[gene] = set()

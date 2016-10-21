@@ -175,7 +175,7 @@ if yes or input('You are about to import ' + str(len(patients)) + ' patients. Ty
     for patient, clinvar_variants in patients:
         patient_id = bot.create(patient, study)
         for clinvar_variant in clinvar_variants:
-            bot.create_object(patient_id, 'Main.ClinVarVariant', clinvar_variant)
+            bot.create_object(patient_id, 'PhenoTips.ClinVarVariantClass', clinvar_variant)
         count += 1
         stdout.write(str(count) + '\r')
     print()

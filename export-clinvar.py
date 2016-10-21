@@ -52,14 +52,14 @@ def get_clinvar_data(bot, patient_ids, study, owner, gene, progress_callback):
             if PhenoTipsBot.qualify(patient_owner) != PhenoTipsBot.qualify(owner):
                 continue
 
-        clinvar_variant_nums = bot.list_objects(patient_id, 'Main.ClinVarVariant')
+        clinvar_variant_nums = bot.list_objects(patient_id, 'PhenoTips.ClinVarVariantClass')
         if len(clinvar_variant_nums) == 0:
             continue
 
         patient_obj = bot.get(patient_id)
 
         for clinvar_variant_num in clinvar_variant_nums:
-            clinvar_variant_obj = bot.get_object(patient_id, 'Main.ClinVarVariant', clinvar_variant_num)
+            clinvar_variant_obj = bot.get_object(patient_id, 'PhenoTips.ClinVarVariantClass', clinvar_variant_num)
             gene_symbol = clinvar_variant_obj.get('gene_symbol')
 
             if gene and (not gene_symbol or not gene in gene_symbol.upper().split(';')):
