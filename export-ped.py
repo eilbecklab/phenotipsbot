@@ -106,7 +106,7 @@ if owner == None:
 start_time = time.time()
 count = 0
 
-patient_ids = bot.list()
+patient_ids = bot.list(study, owner)
 
 stderr.write('Looking through ' + str(len(patient_ids)) + ' patient records...\n')
 stderr.write('\n')
@@ -119,16 +119,6 @@ fid = study if study else '0'
 for patient_id in patient_ids:
     stderr.write(str(count) + '\r')
     count += 1
-
-    if study != None:
-        patient_study = bot.get_study(patient_id)
-        if patient_study != study and not (study == '' and patient_study == None):
-            continue
-
-    if owner:
-        patient_owner = bot.get_owner(patient_id)
-        if PhenoTipsBot.qualify(patient_owner) != PhenoTipsBot.qualify(owner):
-            continue
 
     patient = bot.get(patient_id)
     iid = patient['external_id']

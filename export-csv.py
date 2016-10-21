@@ -29,7 +29,7 @@ from phenotipsbot import PhenoTipsBot
 from sys import stderr
 from sys import stdout
 
-def export_patients(bot, patient_ids, study, owner, out_file, progress_callback):
+def export_patients(bot, patient_ids, out_file, progress_callback):
     start_time = time.time()
     count = 0
     n_exported = 0
@@ -42,16 +42,6 @@ def export_patients(bot, patient_ids, study, owner, out_file, progress_callback)
     for patient_id in patient_ids:
         progress_callback(count)
         count += 1
-
-        if study != None:
-            patient_study = bot.get_study(patient_id)
-            if patient_study != study and not (study == '' and patient_study == None):
-                continue
-
-        if owner:
-            patient_owner = bot.get_owner(patient_id)
-            if PhenoTipsBot.qualify(patient_owner) != PhenoTipsBot.qualify(owner):
-                continue
 
         patient = bot.get(patient_id)
         patient['identifier'] = 'P' + patient['identifier'].zfill(7)
@@ -139,12 +129,12 @@ if __name__ == '__main__':
 
     #begin export
 
-    patient_ids = bot.list()
+    patient_ids = bot.list(study, owner)
 
-    stderr.write('Looking through ' + str(len(patient_ids)) + ' patient records...\n')
+    stderr.write('Exporting ' + str(len(patient_ids)) + ' patient records...\n')
     stderr.write('\n')
 
-    n_exported, elapsed_time = export_patients(bot, patient_ids, study, owner, stdout, lambda count: stderr.write(str(count) + '\r'))
+    n_exported, elapsed_time = export_patients(bot, patient_ids, stdout, lambda count: stderr.write(str(count) + '\r'))
 
     stderr.write('\n')
     stderr.write('Exported ' + str(n_exported) + ' patients.\n')

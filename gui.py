@@ -115,7 +115,7 @@ class MainWindow(QMainWindow):
             self.gene_table = {}
             if self.operation == EXPORT_CLINVAR:
                 self.asyncSetStatus('Getting patient list...')
-                patient_ids = self.bot.list()
+                patient_ids = self.bot.list(having_object='PhenoTips.ClinVarVariantClass')
                 self.asyncSetStatus('Getting gene list...', len(patient_ids))
                 count = 0
                 for patient_id in patient_ids:
@@ -237,10 +237,10 @@ class MainWindow(QMainWindow):
             self.asyncLockUi('Getting patient list...')
 
             try:
-                patient_ids = self.bot.list()
+                patient_ids = self.bot.list(self.study, self.owner)
                 self.asyncSetStatus('Exporting...', len(patient_ids))
                 outFile = open(self.path, 'w')
-                n_exported, elapsedTime = export_patients(self.bot, patient_ids, self.study, self.owner, outFile, self.asyncSetProgress)
+                n_exported, elapsedTime = export_patients(self.bot, patient_ids, outFile, self.asyncSetProgress)
                 outFile.close()
             except Exception as err:
                 self.asyncUnlockUi(str(err))
@@ -250,15 +250,19 @@ class MainWindow(QMainWindow):
                 'Exported ' + str(n_exported) + ' patients.\n' +
                 'Elapsed time ' + str(elapsedTime))
         else:
-            if self.gene:
-                patient_ids = self.gene_table[self.gene]
-            else:
-                patient_ids = set.intersection(*self.gene_table.values())
-
-            self.asyncLockUi('Exporting...', len(patient_ids))
+            self.asyncLockUi('Getting patient list...')
 
             try:
-                clinvar_data, elapsedTime1 = get_clinvar_data(self.bot, patient_ids, self.study, self.owner, self.gene, self.asyncSetProgress)
+                if not self.study and not self.owner:
+                    if self.gene:
+                        patient_ids = self.gene_table[self.gene]
+                    else:
+                        patient_ids = set.intersection(*self.gene_table.values())
+                else:
+                    patient_ids = self.bot.list(self.study, self.owner, having_object='PhenoTips.ClinVarVariantClass')
+
+                self.asyncLockUi('Exporting...', len(patient_ids))
+                clinvar_data, elapsedTime1 = get_clinvar_data(self.bot, patient_ids, self.gene, self.asyncSetProgress)
 
                 self.asyncSetStatus('Writing files Variant.csv and CaseData.csv...')
                 variantsFile = open(self.path + '/Variant.csv', 'w')

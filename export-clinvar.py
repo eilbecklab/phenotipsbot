@@ -32,7 +32,7 @@ from getpass import getpass
 from phenotipsbot import PhenoTipsBot
 from sys import stdout
 
-def get_clinvar_data(bot, patient_ids, study, owner, gene, progress_callback):
+def get_clinvar_data(bot, patient_ids, gene, progress_callback):
     start_time = time.time()
     count = 0
 
@@ -41,16 +41,6 @@ def get_clinvar_data(bot, patient_ids, study, owner, gene, progress_callback):
     for patient_id in patient_ids:
         count += 1
         progress_callback(count)
-
-        if study != None:
-            patient_study = bot.get_study(patient_id)
-            if study != patient_study.lower() and not (study == '' and patient_study == None):
-                continue
-
-        if owner:
-            patient_owner = bot.get_owner(patient_id)
-            if PhenoTipsBot.qualify(patient_owner) != PhenoTipsBot.qualify(owner):
-                continue
 
         clinvar_variant_nums = bot.list_objects(patient_id, 'PhenoTips.ClinVarVariantClass')
         if len(clinvar_variant_nums) == 0:
@@ -605,12 +595,12 @@ if __name__ == '__main__':
 
     #begin export
 
-    patient_ids = bot.list()
+    patient_ids = bot.list(study, owner, having_object='PhenoTips.ClinVarVariantClass')
 
     print('Looking through ' + str(len(patient_ids)) + ' patient records...')
 
     clinvar_data, elapsed_time1 = get_clinvar_data(
-        bot, patient_ids, study, owner, gene,
+        bot, patient_ids, gene,
         lambda count: stdout.write(count + '\r')
     )
 
