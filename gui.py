@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         uic.loadUi('mainwindow.ui', self)
-        self.statusLabel.setText("")
+        self.statusLabel.setVisible(False)
         self.progressBar.setVisible(False)
         self.previousButton.clicked.connect(self.previousButton_clicked)
         self.nextButton.clicked.connect(self.nextButton_clicked)
@@ -89,6 +89,7 @@ class MainWindow(QMainWindow):
 
     def asyncSetStatus(self, status, maxProgress = 0):
         QMetaObject.invokeMethod(self.statusLabel, 'setText', Qt.QueuedConnection, Q_ARG(str, status))
+        QMetaObject.invokeMethod(self.statusLabel, 'setVisible', Qt.QueuedConnection, Q_ARG(bool, bool(status)))
         QMetaObject.invokeMethod(self.progressBar, 'setMaximum', Qt.QueuedConnection, Q_ARG(int, maxProgress))
 
     def asyncSetStudyLabelText(self, text):
