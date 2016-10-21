@@ -601,7 +601,7 @@ if __name__ == '__main__':
 
     clinvar_data, elapsed_time1 = get_clinvar_data(
         bot, patient_ids, gene,
-        lambda count: stdout.write(count + '\r')
+        lambda count: stdout.write(str(count) + '\r')
     )
 
     print('Writing files Variant.csv and CaseData.csv...')
