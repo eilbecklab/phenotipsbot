@@ -541,8 +541,10 @@ Returns a VCF object on a patient page.
 Replaces the pedigree with one created from the specified
 [PED](http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#ped) string.
 
-#### list()
-Returns a list of patient IDs on the server.
+#### list(study=None, owner=None, having_object=None)
+Returns a list of patient IDs on the server, optionally filtering out patients
+that are not part of a particular study, are not owned by a particular user or
+group, or do not have a particular kind of object.
 
 #### list_collaborators(patient_id)
 Returns a list of the numbers of the collaborator objects attached to the

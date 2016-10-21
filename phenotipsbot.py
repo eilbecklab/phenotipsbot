@@ -202,13 +202,26 @@ class PhenoTipsBot:
             self.driver.set_window_size(1920, 1080) #big enough to not cut off any elements
             self.driver.implicitly_wait(PhenoTipsBot.TIMEOUT)
 
-    def list(self):
-        url = self.base + '/rest/patients?number=10000000'
-        r = requests.get(url, auth=self.auth, headers={'Content-Type': 'application/xml'}, verify=self.ssl_verify)
-        r.raise_for_status()
-        root = ElementTree.fromstring(r.text)
-        id_elements = root.findall('./{https://phenotips.org/}patientSummary/{https://phenotips.org/}id')
-        return list(map(lambda el: el.text, id_elements))
+    def list(self, study=None, owner=None, having_object=None):
+        query = ", BaseObject as obj"
+        if study != None:
+            query += ", BaseObject as study_obj, StringProperty as study_prop"
+        if owner:
+            query += ", BaseObject as owner_obj, StringProperty as owner_prop"
+        if having_object:
+            query += ", BaseObject as needful_obj"
+        query += " where doc.space = 'data' and doc.fullName = obj.name and obj.className = 'PhenoTips.PatientClass'"
+        if having_object:
+            query += " and doc.fullName = needful_obj.name and needful_obj.className = '" + having_object + "'"
+        if study != None:
+            query += " and doc.fullName = study_obj.name and study_obj.className = 'PhenoTips.StudyBindingClass'"
+            query += " and study_obj.id = study_prop.id.id and study_prop.id.name = 'studyReference'"
+            query += " and study_prop.value = 'xwiki:Studies." + study + "'"
+        if owner:
+            query += " and doc.fullName = owner_obj.name and owner_obj.className = 'PhenoTips.OwnerClass'"
+            query += " and owner_obj.id = owner_prop.id.id and owner_prop.id.name = 'owner'"
+            query += " and owner_prop.value = '" + PhenoTipsBot.qualify(owner) + "'"
+        return list(map(lambda pagename: PhenoTipsBot.unqualify(pagename, 'data'), self.list_hql(query)))
 
     def list_class_properties(self, class_name):
         url = self.base + '/rest/wikis/xwiki/classes/' + class_name
