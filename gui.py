@@ -9,6 +9,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QMainWindow
+from requests import ConnectionError
+from requests import HTTPError
 from sys import argv
 from sys import exit
 from threading import Thread
@@ -128,6 +130,15 @@ class MainWindow(QMainWindow):
                             self.gene_table[gene].add(patient_id)
                     count += 1
                     self.asyncSetProgress(count)
+        except ConnectionError:
+            self.asyncUnlockUi('The site appears to be mistyped')
+            return
+        except HTTPError as err:
+            if err.response.status_code == 401:
+                self.asyncUnlockUi('Wrong username or password')
+            else:
+                self.asyncUnlockUi(str(err))
+            return
         except Exception as err:
             self.asyncUnlockUi(str(err))
             return
