@@ -30,8 +30,8 @@ from sys import stderr
 base_url = None
 username = None
 password = None
-users = []
-studies = []
+wanted_users = []
+wanted_studies = []
 
 optlist, args = getopt(sys.argv[1:], '', ['base-url=', 'username=', 'password=', 'of-user=', 'of-study='])
 for name, value in optlist:
@@ -42,9 +42,9 @@ for name, value in optlist:
     elif name == '--password':
         password = value
     elif name == '--of-user':
-        users.append(value.lower())
+        wanted_users.append(value.lower())
     elif name == '--of-study':
-        studies.append(value.lower())
+        wanted_studies.append(value.lower())
 
 #get any missing arguments and initialize the bot
 
@@ -79,14 +79,20 @@ count = 0
 patient_total = 0
 positive_phenotype_total = 0
 negative_phenotype_total = 0
+owners = set()
+studies = set()
 fields_used = set()
 for patient_id in patient_ids:
     stderr.write(str(count) + '\r')
     count += 1
 
-    if ((len(users) == 0 or (bot.get_owner(patient_id) or '').lower() in users) and
-            (len(studies) == 0 or (bot.get_study(patient_id) or '').lower() in studies)):
+    owner = bot.get_owner(patient_id) or ''
+    study = bot.get_study(patient_id) or ''
+    if ((len(wanted_users) == 0 or owner.lower() in wanted_users) and
+            (len(wanted_studies) == 0 or study.lower() in wanted_studies)):
         patient_total += 1
+        owners.add(owner)
+        studies.add(study)
         patient = bot.get(patient_id)
         if patient['phenotype']:
             positive_phenotype_total += len(patient['phenotype'].split('|'))
@@ -100,4 +106,6 @@ for patient_id in patient_ids:
 print('Owned patients: ' + str(patient_total))
 print('Average positive phenotypes per patient: ' + str(positive_phenotype_total / patient_total))
 print('Average negative phenotypes per patient: ' + str(negative_phenotype_total / patient_total))
+print('Owners: ' + str(len(owners)) + ', ' + str(sorted(owners)))
+print('Study forms: ' + str(len(studies)) + ', ' + str(sorted(studies)))
 print('Fields used at least once: ' + str(len(fields_used)) + ', ' + str(sorted(fields_used)))
