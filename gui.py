@@ -168,6 +168,7 @@ class MainWindow(QMainWindow):
                 self.asyncSetPage(2)
             else:
                 self.study = None
+                self.owner = self.username
                 self.turnToPage3()
             self.asyncUnlockUi()
         elif self.operation == EXPORT_CSV:
@@ -176,6 +177,7 @@ class MainWindow(QMainWindow):
                 self.asyncSetPage(2)
             else:
                 self.study = None
+                self.owner = None
                 self.turnToPage3()
             self.asyncUnlockUi()
         else:
@@ -189,7 +191,7 @@ class MainWindow(QMainWindow):
                     self.study = None
                     self.owner = self.username
                     self.gene = None
-                    self.asyncTurnToPage3()
+                    self.turnToPage3()
                 self.asyncUnlockUi()
             else:
                 self.asyncUnlockUi('There are no variants for ClinVar on this site.')
