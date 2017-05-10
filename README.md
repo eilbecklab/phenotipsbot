@@ -67,7 +67,7 @@ Installation of these packages is different depending on your platform.
   phenotipsbot.py.
 * **Windows**: [Install Python](https://www.python.org/downloads/windows/), run
   `pip install selenium requests python-dateutil pyqt5`, then
-  [download PhantomJS](http://phantomjs.org/download.html#mac-os-x), extract the
+  [download PhantomJS](http://phantomjs.org/download.html#windows), extract the
   phantomjs.exe file from the bin directory, and save it in the same directory
   as phenotipsbot.py.
 
