@@ -218,7 +218,7 @@ class MainWindow(QMainWindow):
                 global confirmation
                 confirmation += 'WARNING: Ignoring unrecognized value "' + value + '" for "' + field + '"\n'
 
-            self.patients = parse_csv_file(self.path, unrecognizedColumnHandler, unrecognizedValueHandler)
+            self.patients = parse_csv_file(self.bot, self.path, unrecognizedColumnHandler, unrecognizedValueHandler)
 
             self.asyncSetStatus('Checking ' + str(len(self.patients)) + ' external IDs...', len(self.patients))
             self.patient_ids = get_patient_ids(self.bot, self.patients, self.asyncSetProgress)

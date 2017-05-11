@@ -31,123 +31,51 @@ from phenotipsbot import PhenoTipsBot
 from sys import stdout
 from traceback import print_exc
 
-KNOWN_FIELDS = {
-    #phenotips
-    'external_id'                          : 'String',
-    'exam_date'                            : 'Date',
-    'first_name'                           : 'String',
-    'last_name'                            : 'String',
-    'date_of_birth'                        : 'Date',
-    'gender'                               : 'Sex',
-    'global_age_of_onset'                  : 'Database List',
-    'global_mode_of_inheritance'           : 'Database List',
-    'indication_for_referral'              : 'String',
-    'health_card'                          : 'String',
-    'proband'                              : 'Boolean',
-    'family_of'                            : 'Database List',
-    'maternal_ethnicity'                   : 'Race',
-    'paternal_ethnicity'                   : 'Race',
-    'ivf'                                  : 'Boolean',
-    'consanguinity'                        : 'Boolean',
-    'miscarriages'                         : 'Boolean',
-    'omim_id'                              : 'Database List',
-    'unaffected'                           : 'Boolean',
-    'phenotype'                            : 'Database List',
-    'negative_phenotype'                   : 'Database List',
-    'prenatal_phenotype'                   : 'Database List',
-    'negative_prenatal_phenotype'          : 'Database List',
-    'prenatal_development'                 : 'String',
-    'gestation'                            : 'Integer',
-    'family_history'                       : 'String',
-    'pedigree'                             : 'Database List',
-    'diagnosis_notes'                      : 'String',
-    'medical_history'                      : 'String',
-    'reports_history'                      : 'Database List',
-    'extended_phenotype'                   : 'Database List',
-    'extended_prenatal_phenotype'          : 'Database List',
-    'extended_negative_phenotype'          : 'Database List',
-    'extended_negative_prenatal_phenotype' : 'Database List',
-    'apgar1'                               : 'Static List',
-    'apgar5'                               : 'Static List',
-    'assistedReproduction_fertilityMeds'   : 'Boolean',
-    'assistedReproduction_surrogacy'       : 'Boolean',
-    'solved'                               : 'Boolean',
-    'solved__pubmed_id'                    : 'String',
-    'solved__gene_id'                      : 'String',
-    'date_of_death'                        : 'Date',
-    'date_of_death_entered'                : 'String',
-    'date_of_birth_entered'                : 'String',
-    'solved__notes'                        : 'String',
-    'assistedReproduction_donoregg'        : 'Boolean',
-    'date_of_death_unknown'                : 'Boolean',
-    'assistedReproduction_donorsperm'      : 'Boolean',
-    'icsi'                                 : 'Boolean',
-    'affectedRelatives'                    : 'Boolean',
-    'multipleGestation'                    : 'Boolean',
-    'assistedReproduction_iui'             : 'Boolean',
-    #phenotype core
-    'enrollment_date'                      : 'Date String',
-    'consent_signed_date'                  : 'Date String',
-    'subject_mmi'                          : 'Integer',
-    'lab_id'                               : 'String',
-    'kindred_id'                           : 'String',
-    'subject_data_relationship'            : 'String',
-    'investigator'                         : 'String',
-    'home_zip_code'                        : 'Zip',
-    'case_or_control'                      : 'Static List',
-    #IBD
-    'age_at_diagnosis'                     : 'Float',
-    'age_at_enrollment'                    : 'Float',
-    'lymphoblast_transformation_date'      : 'Date',
-}
-
-def normalize(field_name, value):
-    field_type = KNOWN_FIELDS[field_name]
+def normalize(field_name, field_value, field_metadata):
+    field_value = field_value.strip()
+    field_type = field_metadata['type']
     try:
-        if field_type in ('Date', 'Date String'):
-            return parsedate(value).strftime('%Y-%m-%d')
-        elif field_type == 'Sex':
-            value = value.strip().lower()
-            if value in ('m', 'male'):
-                return 'M'
-            elif value in ('f', 'female'):
-                return 'F'
-            elif value in ('o', 'other'):
-                return 'O'
-            else:
-                return None
+        if field_type == 'Date':
+            return parsedate(field_value).strftime('%Y-%m-%d')
         elif field_type == 'Boolean':
-            value = value.strip().lower()
-            if value in ('t', 'true', 'y', 'yes', '1'):
+            field_value = field_value.lower()
+            if field_value in ('t', 'true', 'y', 'yes', '1'):
                 return '1'
-            elif value in ('f', 'false', 'n', 'no', '0'):
+            elif field_value in ('f', 'false', 'n', 'no', '0'):
                 return '0'
             else:
                 return None
-        elif field_type == 'Integer':
-            return int(value)
-        elif field_type == 'Float':
-            return float(value)
-        elif field_type == 'Zip':
-            components = re.match('(\d{1,5})(?:-(\d{4}))?', value.strip())
-            if not components:
-                raise ValueError()
-            value = components.group(1).zfill(5)
-            if components.group(2):
-                value += '-' + components.group(2)
-            return value
+        elif field_type == 'Number':
+            if field_metadata['numberType'] in ('integer', 'long'):
+                return int(field_value)
+            else:
+                return float(field_value)
+        elif field_type == 'StaticList':
+            possible_values = field_metadata['values']
+            if not possible_values:
+                return field_value
+            field_value = field_value.lower()
+            for key, value in possible_values.items():
+                if field_value == key.lower() or field_value == value.lower():
+                    return key
+            return None
         else:
-            return value.strip()
+            validationRegex = field_metadata['validationRegExp']
+            if validationRegex and not re.fullmatch(validationRegex, field_value):
+                return None
+            return field_value
     except ValueError:
         return None
 
-def parse_csv_file(file_name, unrecognized_column_callback, unrecognized_value_callback):
+def parse_csv_file(bot, file_name, unrecognized_column_callback, unrecognized_value_callback):
+    possible_fields = bot.list_patient_class_properties()
+
     reader = csv.DictReader(open(file_name, 'r'))
     patients = []
 
     #warn about unrecognized fields
     for field in reader.fieldnames:
-        if field not in KNOWN_FIELDS:
+        if field not in possible_fields:
             unrecognized_column_callback(field)
 
     for row in reader:
@@ -161,7 +89,7 @@ def parse_csv_file(file_name, unrecognized_column_callback, unrecognized_value_c
             value = row[field]
             if value == '':
                 continue
-            patient[field] = normalize(field, value)
+            patient[field] = normalize(field, value, possible_fields[field])
             if patient[field] == None:
                 del patient[field]
                 unrecognized_value_callback(value, field)
@@ -229,14 +157,7 @@ if __name__ == '__main__':
         elif name in ('-y', '--yes'):
             yes = True
 
-    #parse CSV file
-    patients = parse_csv_file(
-        args[0],
-        lambda column: print('WARNING: Ignoring unrecognized column "' + column + '"'),
-        lambda value, field: print('WARNING: Ignoring unrecognized value "' + value + '" for "' + field + '"')
-    )
-
-    #get any missing arguments and initialize the bot
+    #get missing arguments and initialize the bot
 
     if not base_url:
         base_url = input('Input the URL (blank for http://localhost:8080): ')
@@ -257,6 +178,17 @@ if __name__ == '__main__':
         password = 'admin'
 
     bot = PhenoTipsBot(base_url, username, password)
+
+    #parse CSV file
+
+    patients = parse_csv_file(
+        bot,
+        args[0],
+        lambda column: print('WARNING: Ignoring unrecognized column "' + column + '"'),
+        lambda value, field: print('WARNING: Ignoring unrecognized value "' + value + '" for "' + field + '"')
+    )
+
+    #get the rest of the missing arguments
 
     if study == None:
         studies = bot.list_studies()
