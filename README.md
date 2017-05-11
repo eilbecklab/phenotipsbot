@@ -546,6 +546,11 @@ Returns a list of patient IDs on the server, optionally filtering out patients
 that are not part of a particular study, are not owned by a particular user or
 group, or do not have a particular kind of object.
 
+#### list_class_properties(class_name)
+Returns an ordered dictionary where each key is a property of the class and each
+value is a dictionary with the additional information `type`, `numberType`,
+`validationRegExp`, and `values`.
+
 #### list_collaborators(patient_id)
 Returns a list of the numbers of the collaborator objects attached to the
 patient page.
@@ -570,7 +575,9 @@ Returns a list of the pages in a namespace, optionally filtering out pages that
 do not have a particular kind of object.
 
 #### list_patient_class_properties()
-Returns a list of the possible property names that a patient object can have.
+Returns an ordered dictionary where each key is a property that a patient object
+can have and each value is the information about that property returned by
+[list_class_properties](#list_class_propertiesclass_name).
 
 #### list_relatives(patient_id)
 Returns a list of the numbers of the relative relationship objects attached to

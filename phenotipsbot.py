@@ -21,6 +21,7 @@
 import json
 import requests
 from base64 import b64encode
+from collections import OrderedDict
 from copy import copy
 from os.path import basename
 from selenium import webdriver
@@ -228,9 +229,29 @@ class PhenoTipsBot:
         r = requests.get(url, auth=self.auth, verify=self.ssl_verify)
         r.raise_for_status()
         root = ElementTree.fromstring(r.text)
-        ret = []
+        ret = OrderedDict()
         for prop in root.iter('{http://www.xwiki.org}property'):
-            ret.append(prop.attrib['name'])
+            prop_name = prop.attrib['name']
+            ret[prop_name] = {'type': prop.attrib['type']}
+
+            number_type_el = prop.find('./{http://www.xwiki.org}attribute[@name="numberType"]')
+            regex_el = prop.find('./{http://www.xwiki.org}attribute[@name="validationRegExp"]')
+            values_el = prop.find('./{http://www.xwiki.org}attribute[@name="values"]')
+
+            if number_type_el != None:
+                ret[prop_name]['numberType'] = number_type_el.attrib['value']
+            if regex_el != None:
+                ret[prop_name]['validationRegExp'] = regex_el.attrib['value']
+            if values_el != None:
+                ret[prop_name]['values'] = {}
+                for key_value_pair in values_el.attrib['value'].split('|'):
+                    key_value_pair = key_value_pair.split('=')
+                    if len(key_value_pair) > 1:
+                        key = key_value_pair[0]
+                        value = key_value_pair[1]
+                    else:
+                        key = value = key_value_pair[0]
+                    ret[prop_name]['values'][key] = value
         return ret
 
     def list_collaborators(self, patient_id):
