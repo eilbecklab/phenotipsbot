@@ -4,6 +4,7 @@ from phenotipsbot import PhenoTipsBot
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import Q_ARG
+from PyQt5.QtCore import QDir
 from PyQt5.QtCore import QMetaObject
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
@@ -319,14 +320,24 @@ class MainWindow(QMainWindow):
         self.ownerSelector.addItem(item)
 
     def browseButton_clicked(self):
+        dialog = QFileDialog()
         if self.operation == IMPORT_CSV:
-            path = QFileDialog.getOpenFileName(self, 'Import spreadsheet', '', '*.csv')[0]
+            dialog.setAcceptMode(QFileDialog.AcceptOpen)
+            dialog.setFileMode(QFileDialog.ExistingFile)
+            dialog.setMimeTypeFilters(['text/csv'])
+            dialog.setWindowTitle('Import spreadsheet')
         elif self.operation == EXPORT_CSV:
-            path = QFileDialog.getSaveFileName(self, 'Export spreadsheet', '', '*.csv')[0]
+            dialog.setAcceptMode(QFileDialog.AcceptSave)
+            dialog.setDefaultSuffix('csv')
+            dialog.setFileMode(QFileDialog.AnyFile)
+            dialog.setMimeTypeFilters(['text/csv'])
+            dialog.setWindowTitle('Export spreadsheet')
         else:
-            path = QFileDialog.getExistingDirectory(self, 'Export spreadsheets')
-        if path:
-            self.pathLabel.setText(path)
+            dialog.setAcceptMode(QFileDialog.AcceptSave)
+            dialog.setFileMode(QFileDialog.Directory)
+            dialog.setWindowTitle('Export spreadsheets')
+        if dialog.exec():
+            self.pathLabel.setText(QDir.toNativeSeparators(dialog.selectedFiles()[0]))
 
     def nextButton_clicked(self):
         if self.stackedWidget.currentIndex() == 0: #operation
