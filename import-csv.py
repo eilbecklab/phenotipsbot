@@ -142,38 +142,29 @@ def normalize(field_name, value):
         return None
 
 def parse_csv_file(file_name, unrecognized_column_callback, unrecognized_value_callback):
-    reader = csv.reader(open(file_name, 'r'))
-    column_map = {}
+    reader = csv.DictReader(open(file_name, 'r'))
     patients = []
 
-    i = -1
+    #warn about unrecognized fields
+    for field in reader.fieldnames:
+        if field not in KNOWN_FIELDS:
+            unrecognized_column_callback(field)
+
     for row in reader:
-        i += 1
-
-        #skip first row
-        if i == 0:
-            j = 0
-            for cell in row:
-                if cell in KNOWN_FIELDS:
-                    column_map[cell] = j
-                else:
-                    unrecognized_column_callback(cell)
-                j += 1
-            continue
-
         #skip empty rows
         if len(row) == 0:
             continue
 
         patient = {}
 
-        for field in column_map:
-            value = row[column_map[field]]
-            if not value == '':
-                patient[field] = normalize(field, value)
-                if patient[field] == None:
-                    del patient[field]
-                    unrecognized_value_callback(value, field)
+        for field in reader.fieldnames:
+            value = row[field]
+            if value == '':
+                continue
+            patient[field] = normalize(field, value)
+            if patient[field] == None:
+                del patient[field]
+                unrecognized_value_callback(value, field)
 
         patients.append(patient)
 
