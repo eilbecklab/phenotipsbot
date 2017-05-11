@@ -76,7 +76,7 @@ class MainWindow(QMainWindow):
         QMetaObject.invokeMethod(self.browseLabel, 'setText', Qt.QueuedConnection, Q_ARG(str, text))
 
     def asyncSetConfirmation(self, confirmation):
-        QMetaObject.invokeMethod(self.confirmationLabel, 'setText', Qt.QueuedConnection, Q_ARG(str, confirmation))
+        QMetaObject.invokeMethod(self.confirmationTextbox, 'setPlainText', Qt.QueuedConnection, Q_ARG(str, confirmation))
 
     def asyncSetOwnerLabelText(self, text):
         QMetaObject.invokeMethod(self.ownerLabel, 'setText', Qt.QueuedConnection, Q_ARG(str, text))
