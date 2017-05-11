@@ -217,8 +217,17 @@ class MainWindow(QMainWindow):
             def unrecognizedValueHandler(value, field):
                 global confirmation
                 confirmation += 'WARNING: Ignoring unrecognized value "' + value + '" for "' + field + '"\n'
+            def identifierColumnHandler():
+                global confirmation
+                confirmation += 'WARNING: Ignoring identifier column; all existing patients must be identified using the external_id column and all new patients must receive new PhenoTips IDs.\n'
 
-            self.patients = parse_csv_file(self.bot, self.path, unrecognizedColumnHandler, unrecognizedValueHandler)
+            self.patients = parse_csv_file(
+                self.bot,
+                self.path,
+                unrecognizedColumnHandler,
+                unrecognizedValueHandler,
+                identifierColumnHandler
+            )
 
             self.asyncSetStatus('Checking ' + str(len(self.patients)) + ' external IDs...', len(self.patients))
             self.patient_ids = get_patient_ids(self.bot, self.patients, self.asyncSetProgress)

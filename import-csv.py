@@ -67,7 +67,8 @@ def normalize(field_name, field_value, field_metadata):
     except ValueError:
         return None
 
-def parse_csv_file(bot, file_name, unrecognized_column_callback, unrecognized_value_callback):
+def parse_csv_file(bot, file_name, unrecognized_column_callback, unrecognized_value_callback,
+                   identifier_column_callback):
     possible_fields = bot.list_patient_class_properties()
 
     reader = csv.DictReader(open(file_name, 'r'))
@@ -75,6 +76,8 @@ def parse_csv_file(bot, file_name, unrecognized_column_callback, unrecognized_va
 
     #warn about unrecognized fields
     for field in reader.fieldnames:
+        if field == 'identifier':
+            identifier_column_callback()
         if field not in possible_fields:
             unrecognized_column_callback(field)
 
@@ -86,6 +89,8 @@ def parse_csv_file(bot, file_name, unrecognized_column_callback, unrecognized_va
         patient = {}
 
         for field in reader.fieldnames:
+            if field == 'identifier':
+                continue
             value = row[field]
             if value == '':
                 continue
@@ -185,7 +190,8 @@ if __name__ == '__main__':
         bot,
         args[0],
         lambda column: print('WARNING: Ignoring unrecognized column "' + column + '"'),
-        lambda value, field: print('WARNING: Ignoring unrecognized value "' + value + '" for "' + field + '"')
+        lambda value, field: print('WARNING: Ignoring unrecognized value "' + value + '" for "' + field + '"'),
+        lambda: print('WARNING: Ignoring identifier column; all existing patients must be identified using the external_id column and all new patients must receive new PhenoTips IDs.')
     )
 
     #get the rest of the missing arguments
