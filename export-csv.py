@@ -44,7 +44,6 @@ def export_patients(bot, patient_ids, out_file, progress_callback):
         count += 1
 
         patient = bot.get(patient_id)
-        patient['identifier'] = 'P' + patient['identifier'].zfill(7)
         row = []
         for prop_name in prop_names:
             row.append(patient[prop_name])
