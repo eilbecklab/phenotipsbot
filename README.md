@@ -1,10 +1,10 @@
 **PhenoTipsBot** is a Python framework for manipulating patient data on a
 [PhenoTips](http://phenotips.org/) website. Patient records are represented as
-[Python dictionaries]
-(https://docs.python.org/3/tutorial/datastructures.html#dictionaries),
-with each key corresponding to a [PatientClass]
-(https://playground.phenotips.org/bin/PhenoTips/PatientClass) property and each
-value being a string. Values are not validated during insertion.
+[Python dictionaries](https://docs.python.org/3/tutorial/datastructures.html#dictionaries),
+with each key corresponding to a
+[PatientClass](https://playground.phenotips.org/bin/PhenoTips/PatientClass)
+property and each value being a string. Values are not validated during
+insertion.
 
 This repository also includes several sample programs that use the PhenoTipsBot
 framework to perform common import and export operations. Use these as examples
@@ -13,9 +13,8 @@ program that provides a graphical frontend to the import/export scripts.
 
 PhenoTipsBot uses a combination of the
 [PhenoTips REST API](https://phenotips.org/DevGuide/RESTfulAPI), the
-[XWiki REST API]
-(http://platform.xwiki.org/xwiki/bin/view/Features/XWikiRESTfulAPI), and
-[PhantomJS](http://phantomjs.org/) because the PhenoTips REST API cannot
+[XWiki REST API](http://platform.xwiki.org/xwiki/bin/view/Features/XWikiRESTfulAPI),
+and [PhantomJS](http://phantomjs.org/) because the PhenoTips REST API cannot
 manipulate studies, pedigrees, or custom properties that have been added to the
 PatientClass. PhenoTips 1.2.2 or later is required.
 
