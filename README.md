@@ -12,7 +12,8 @@ to create scripts that meet more complex needs. There is also a [gui.py](gui.py)
 program that provides a graphical frontend to the import/export scripts.
 
 PhenoTipsBot uses a combination of the
-[PhenoTips REST API](https://phenotips.org/DevGuide/RESTfulAPI), the
+[PhenoTips REST API](https://web.archive.org/web/20170403001615/https://phenotips.org/DevGuide/RESTfulAPI),
+the
 [XWiki REST API](http://platform.xwiki.org/xwiki/bin/view/Features/XWikiRESTfulAPI),
 and [PhantomJS](http://phantomjs.org/) because the PhenoTips REST API cannot
 manipulate studies, pedigrees, or custom properties that have been added to the
